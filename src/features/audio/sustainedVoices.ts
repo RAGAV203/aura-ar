@@ -7,6 +7,8 @@ import { AUDIO_LIMITS } from "./audioMath";
  * setTargetAtTime while held (no per-frame allocation) and released with an
  * envelope on note-off, after which its nodes are stopped and disconnected.
  */
+export type { SynthKind };
+
 export interface SustainedVoice {
   readonly kind: VoiceKind;
   readonly startedAt: number;
@@ -42,9 +44,13 @@ interface Timbre {
   breath: number;
   hammer: boolean;
   level: number;
+  /** Peaking filters for body / formant resonances: [Hz, dB, Q]. */
+  body?: Array<[number, number, number]>;
 }
 
-const TIMBRES: Record<VoiceKind, Timbre> = {
+type SynthKind = Exclude<VoiceKind, "guitar" | "nylon" | "electric" | "ukulele" | "veena" | "sitar">;
+
+const TIMBRES: Record<SynthKind, Timbre> = {
   piano: {
     partials: [
       { type: "triangle", ratio: 1, gain: 0.6 },
@@ -144,6 +150,85 @@ const TIMBRES: Record<VoiceKind, Timbre> = {
     hammer: false,
     level: 0.6,
   },
+  violin: {
+    partials: [
+      { type: "sawtooth", ratio: 1, gain: 0.45 },
+      { type: "sawtooth", ratio: 1, gain: 0.25, detune: 5 },
+    ],
+    attack: 0.09,
+    decay: 0,
+    release: 0.25,
+    filterBase: 1400,
+    filterRange: 4200,
+    filterBurst: 600,
+    vibratoRate: 5.8,
+    vibratoDepth: 0.004,
+    vibratoDelay: 0.35,
+    scoop: 0.008,
+    breath: 0.025,
+    hammer: false,
+    level: 0.7,
+    body: [[280, 6, 1.6], [460, 4, 1.8], [2900, 5, 1.2]],
+  },
+  cello: {
+    partials: [
+      { type: "sawtooth", ratio: 1, gain: 0.5 },
+      { type: "sawtooth", ratio: 1, gain: 0.25, detune: -4 },
+    ],
+    attack: 0.12,
+    decay: 0,
+    release: 0.35,
+    filterBase: 700,
+    filterRange: 2600,
+    filterBurst: 400,
+    vibratoRate: 5.2,
+    vibratoDepth: 0.004,
+    vibratoDelay: 0.4,
+    scoop: 0.006,
+    breath: 0.02,
+    hammer: false,
+    level: 0.8,
+    body: [[200, 6, 1.4], [550, 3, 1.6], [1500, 3, 1.2]],
+  },
+  theremin: {
+    partials: [
+      { type: "sine", ratio: 1, gain: 0.85 },
+      { type: "triangle", ratio: 1, gain: 0.12 },
+      { type: "sine", ratio: 2, gain: 0.05 },
+    ],
+    attack: 0.04,
+    decay: 0,
+    release: 0.2,
+    filterBase: 2500,
+    filterRange: 3000,
+    filterBurst: 0,
+    vibratoRate: 6,
+    vibratoDepth: 0.0015,
+    vibratoDelay: 0.2,
+    scoop: 0,
+    breath: 0,
+    hammer: false,
+    level: 0.85,
+  },
+  bayan: {
+    partials: [
+      { type: "sine", ratio: 1, gain: 0.95 },
+      { type: "sine", ratio: 2, gain: 0.12 },
+    ],
+    attack: 0.003,
+    decay: 1.4,
+    release: 0.3,
+    filterBase: 500,
+    filterRange: 900,
+    filterBurst: 0,
+    vibratoRate: 0,
+    vibratoDepth: 0,
+    vibratoDelay: 0,
+    scoop: 0,
+    breath: 0,
+    hammer: true,
+    level: 1.4,
+  },
   woodwind: {
     partials: [
       { type: "square", ratio: 1, gain: 0.35 },
@@ -171,7 +256,7 @@ export function createSustainedVoice(
   context: BaseAudioContext,
   output: AudioNode,
   noise: AudioBuffer,
-  kind: VoiceKind,
+  kind: SynthKind,
   midi: number,
   velocity: number,
   pan: number,
@@ -192,7 +277,16 @@ export function createSustainedVoice(
   filter.Q.value = 0.8;
   const panner = context.createStereoPanner();
   panner.pan.value = (clamp01(pan) - 0.5) * 1.4;
-  filter.connect(env).connect(expressionGain).connect(panner).connect(output);
+  let tail: AudioNode = filter;
+  for (const [frequency, gain, q] of t.body ?? []) {
+    const peak = context.createBiquadFilter();
+    peak.type = "peaking";
+    peak.frequency.value = frequency;
+    peak.gain.value = gain;
+    peak.Q.value = q;
+    tail = tail.connect(peak);
+  }
+  tail.connect(env).connect(expressionGain).connect(panner).connect(output);
 
   const baseFrequency = midiToFrequency(midi);
   const oscillators: OscillatorNode[] = [];

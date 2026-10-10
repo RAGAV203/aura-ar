@@ -168,7 +168,9 @@ export function InstrumentStage(props: InstrumentStageProps) {
       const minInterval = FRAME_INTERVAL_MS[current.quality];
       if (minInterval > 0 && now - lastRender < minInterval - 2) return;
       lastRender = now;
-      const dt = Math.min((now - last) / 1000, 0.1);
+      // rAF timestamps mark the start of the frame and can precede performance.now() taken when the
+      // loop (re)started, so never let time run backwards.
+      const dt = Math.min(Math.max(0, (now - last) / 1000), 0.1);
       last = now;
       const engine = engineRef.current;
       if (!engine) return;

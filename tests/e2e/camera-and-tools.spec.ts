@@ -100,13 +100,16 @@ test("hide interface keeps only the artwork until restored", async ({ page }) =>
 test("new instruments react to touch", async ({ page }) => {
   await skipOnboarding(page);
   const pixels = () => page.evaluate(() => (document.querySelector("main canvas") as HTMLCanvasElement).toDataURL());
-  for (const id of ["string-harp", "ripple-pond", "magnetic-field", "piano", "flute", "trumpet", "orchestra", "drum-kit", "freestyle-drums"]) {
+  for (const id of ["string-harp", "ripple-pond", "magnetic-field", "piano", "flute", "trumpet", "orchestra", "drum-kit", "freestyle-drums", "guitar", "veena", "sitar", "violin", "theremin", "handpan", "marimba", "tabla", "kalimba"]) {
     await page.goto(`/studio/?instrument=${id}`);
     await expect(page.locator("main canvas")).toBeVisible();
     await page.getByRole("button", { name: "Pause", exact: true }).click();
     const idle = await pixels();
     await page.getByRole("button", { name: "Resume", exact: true }).first().click();
     await drawStroke(page, [0.1, 0.5], [0.9, 0.55], 20);
+    // Tap-only instruments (handpan, drums) respond to taps on their playing surface.
+    const box = (await page.getByLabel(/canvas\. drag to play/i).boundingBox())!;
+    for (const fx of [0.3, 0.5, 0.72]) await page.mouse.click(box.x + box.width * fx, box.y + box.height * 0.56);
     await page.getByRole("button", { name: "Pause", exact: true }).click();
     expect(await pixels(), id).not.toBe(idle);
   }
@@ -114,12 +117,14 @@ test("new instruments react to touch", async ({ page }) => {
 
 test("melodic instruments and drums play with sound on, without errors", async ({ page }) => {
   const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
+  let current = "";
+  page.on("pageerror", (error) => errors.push(`${current}: ${error.message}`));
   page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
+    if (message.type() === "error") errors.push(`${current}: ${message.text()}`);
   });
   await skipOnboarding(page);
-  for (const id of ["piano", "flute", "trumpet", "orchestra", "drum-kit", "freestyle-drums"]) {
+  for (const id of ["piano", "flute", "trumpet", "orchestra", "drum-kit", "freestyle-drums", "guitar", "veena", "sitar", "violin", "theremin", "handpan", "marimba", "tabla", "kalimba"]) {
+    current = id;
     await page.goto(`/studio/?instrument=${id}`);
     const discard = page.getByRole("button", { name: "Discard" });
     if (await discard.isVisible({ timeout: 1000 }).catch(() => false)) await discard.click();

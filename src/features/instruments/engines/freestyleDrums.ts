@@ -1,6 +1,7 @@
 import { clamp, clamp01 } from "@/lib/math";
 import type { ControlInput, DrumKind, InstrumentParameters } from "@/types/instruments";
 import { CanvasInstrument, createGlowSprite, TintedSprites } from "./canvasInstrument";
+import { drawStick, haptic, StickRig } from "./sticks";
 import { StrikeDetector } from "./strikes";
 
 interface Voice {
@@ -56,7 +57,8 @@ export function quantizeBeat(beat: number, amount: number, perBeat = 4): number 
  */
 export class FreestyleDrumsInstrument extends CanvasInstrument {
   readonly id = "freestyle-drums" as const;
-  private readonly strikes = new StrikeDetector(0.8);
+  private readonly strikes = new StrikeDetector(0.9);
+  private readonly rig = new StickRig({ length: 0.19, swing: 0.36 });
   private touchDown = new Set<string>();
   private loop: LoopHit[] = [];
   private clockStart = performance.now() / 1000;
@@ -75,6 +77,10 @@ export class FreestyleDrumsInstrument extends CanvasInstrument {
   constructor(canvas: HTMLCanvasElement, parameters: InstrumentParameters, seed: number) {
     super(canvas, parameters, seed);
     this.useOffscreenLayer();
+  }
+
+  protected override onResize(): void {
+    this.rig.setAspect(this.canvas.width / Math.max(1, this.canvas.height));
   }
 
   override dispose(): void {
@@ -150,13 +156,27 @@ export class FreestyleDrumsInstrument extends CanvasInstrument {
   protected step(dt: number, input: ControlInput): void {
     this.fade(dt * 1.2);
     const seen = new Set<string>();
+    const sticks = this.rig.update(input.points, dt);
     for (const point of input.points) {
       if (point.source === "hand" || point.lifted) continue;
       seen.add(point.id);
-      if (!this.touchDown.has(point.id)) this.hit(point.position.x, point.position.y, 0.55 + point.amount * 0.45);
+      if (!this.touchDown.has(point.id)) {
+        this.hit(point.position.x, point.position.y, 0.55 + point.amount * 0.45);
+        const stick = sticks.find((st) => st.source !== "hand" && Math.abs(st.tipX - point.position.x) < 1e-3);
+        if (stick) this.rig.rebound(stick, 0.7);
+        haptic();
+      }
     }
     this.touchDown = seen;
-    for (const strike of this.strikes.update(input.points, this.time, this.param("sensitivity", 1))) this.hit(strike.x, strike.y, strike.velocity);
+    // In open air there is no drum head: a hit is the stick tip "bouncing" at the bottom of a stroke.
+    const tips = sticks
+      .filter((st) => st.active && st.source === "hand")
+      .map((st) => ({ id: st.side, source: "hand" as const, position: { x: st.tipX, y: st.tipY }, velocity: { x: st.tipVx, y: st.tipVy }, speed: Math.hypot(st.tipVx, st.tipVy), amount: 1, engaged: false, lifted: false }));
+    for (const strike of this.strikes.update(tips, this.time, this.param("sensitivity", 1))) {
+      this.hit(strike.x, strike.y, strike.velocity);
+      const stick = this.rig.sticks[strike.id === "left" ? "left" : "right"];
+      this.rig.rebound(stick, strike.velocity);
+    }
     for (const event of input.events) {
       if (event.type === "accent") {
         // Clear the loop and start fresh (non-destructive to saved work; just the jam).
@@ -272,6 +292,8 @@ export class FreestyleDrumsInstrument extends CanvasInstrument {
       ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
       ctx.fillRect(head - dpr, top - 10 * dpr, 2 * dpr, 20 * dpr);
     }
+    drawStick(ctx, this.rig.sticks.left, W, H, dpr);
+    drawStick(ctx, this.rig.sticks.right, W, H, dpr);
     ctx.restore();
   }
 }

@@ -11,7 +11,7 @@ export const AUDIO_LIMITS = {
   /** Enough for a harp strum to ring out; each voice is short-lived. */
   maxPolyphony: 14,
   /** Held notes (piano chords, orchestra sections); the oldest is released when exceeded. */
-  maxSustainedVoices: 16,
+  maxSustainedVoices: 24,
   minMidi: 24,
   maxMidi: 108,
   /** Minimum time between two discrete notes (a fast strum is ~40 ms per string). */

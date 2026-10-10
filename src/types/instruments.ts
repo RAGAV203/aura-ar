@@ -14,7 +14,19 @@ export type InstrumentId =
   | "trumpet"
   | "orchestra"
   | "drum-kit"
-  | "freestyle-drums";
+  | "freestyle-drums"
+  | "guitar"
+  | "veena"
+  | "sitar"
+  | "violin"
+  | "theremin"
+  | "handpan"
+  | "marimba"
+  | "tabla"
+  | "kalimba";
+
+/** Groups instruments in the library and switcher. */
+export type InstrumentCategory = "visual" | "strings" | "keys-winds" | "percussion" | "electronic";
 
 export type QualityLevel = "high" | "balanced" | "battery";
 
@@ -99,7 +111,16 @@ export type SoundPalette =
   | "brass-hall"
   | "orchestra-hall"
   | "drum-room"
-  | "drum-loop";
+  | "drum-loop"
+  | "guitar-room"
+  | "veena-tanpura"
+  | "sitar-tanpura"
+  | "bowed-hall"
+  | "theremin-air"
+  | "handpan-air"
+  | "marimba-hall"
+  | "tabla-tanpura"
+  | "kalimba-air";
 
 export interface AudioConfig {
   /** Continuous layer. */
@@ -130,6 +151,7 @@ export interface InstrumentDefinition {
   exportFormats: Array<"png" | "json" | "video">;
   /** Accent colours used by UI chrome around the instrument. */
   palette: [string, string, string];
+  category: InstrumentCategory;
 }
 
 /** Values the instrument engine pushes to the audio engine (~30 Hz). */
@@ -156,10 +178,39 @@ export interface AudioNoteEvent {
   pan: number;
 }
 
-export type DrumKind = "kick" | "snare" | "hat" | "hat-open" | "tom" | "crash" | "ride" | "timpani";
+export type DrumKind =
+  | "kick"
+  | "snare"
+  | "hat"
+  | "hat-open"
+  | "tom"
+  | "crash"
+  | "ride"
+  | "timpani"
+  | "marimba"
+  | "handpan"
+  | "kalimba"
+  | "tabla-na"
+  | "tabla-tin"
+  | "tabla-te"
+  | "tabla-ka";
 
 /** Timbres for sustained (held) notes. */
-export type VoiceKind = "piano" | "flute" | "trumpet" | "strings" | "brass" | "woodwind";
+export type VoiceKind =
+  | "piano"
+  | "flute"
+  | "trumpet"
+  | "strings"
+  | "brass"
+  | "woodwind"
+  | "violin"
+  | "cello"
+  | "theremin"
+  | "bayan"
+  | PluckedKind;
+
+/** Physically modelled (Karplus–Strong) plucked strings; support pitch bends while ringing. */
+export type PluckedKind = "guitar" | "nylon" | "electric" | "ukulele" | "veena" | "sitar";
 
 /**
  * Commands for sustained voices: a note starts on press / pinch, follows the

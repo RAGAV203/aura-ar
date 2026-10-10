@@ -1,4 +1,4 @@
-import { midiToFrequency } from "@/lib/math";
+import { clamp, midiToFrequency } from "@/lib/math";
 import type { AudioConfig, AudioNoteEvent, AudioTargets, DrumKind } from "@/types/instruments";
 import { AUDIO_LIMITS, brightnessToCutoff, degreeToFrequency } from "./audioMath";
 
@@ -82,6 +82,21 @@ export function createContinuousLayer(context: BaseAudioContext, output: AudioNo
     case "flute-air":
     case "brass-hall":
     case "orchestra-hall":
+    case "veena-tanpura":
+    case "sitar-tanpura":
+    case "tabla-tanpura":
+      // Tanpura drone: Sa–Pa–Sa'–Sa with a buzzy (jawari) edge from the noise band.
+      addOsc("sawtooth", root - 12, -3, 0.16);
+      addOsc("sawtooth", root - 5, 4, 0.12);
+      addOsc("sawtooth", root, 2, 0.12);
+      addOsc("sine", root - 24, 0, 0.18);
+      break;
+    case "guitar-room":
+    case "bowed-hall":
+    case "theremin-air":
+    case "handpan-air":
+    case "marimba-hall":
+    case "kalimba-air":
     case "drum-room":
     case "drum-loop":
       addOsc("sine", root - 24, 0, 0.08);
@@ -161,7 +176,7 @@ export function playNote(
   let duration: number;
 
   if (isDrum(note.kind)) {
-    duration = playDrum(context, env, noise, note.kind, note.degree, peak, time);
+    duration = playDrum(context, env, noise, note.kind, note.degree, peak, time, config.rootNote);
     source = drumSource(context, env);
   } else if (note.kind === "bell") {
     // Two-operator FM bell: a bright, inharmonic attack that mellows as the modulation decays.
@@ -278,7 +293,23 @@ export function createNoiseBuffer(context: BaseAudioContext): AudioBuffer {
   return buffer;
 }
 
-const DRUMS: readonly string[] = ["kick", "snare", "hat", "hat-open", "tom", "crash", "ride", "timpani"];
+const DRUMS: readonly string[] = [
+  "kick",
+  "snare",
+  "hat",
+  "hat-open",
+  "tom",
+  "crash",
+  "ride",
+  "timpani",
+  "marimba",
+  "handpan",
+  "kalimba",
+  "tabla-na",
+  "tabla-tin",
+  "tabla-te",
+  "tabla-ka",
+];
 
 function isDrum(kind: AudioNoteEvent["kind"]): kind is DrumKind {
   return DRUMS.includes(kind);
@@ -298,7 +329,7 @@ function drumSource(context: BaseAudioContext, out: AudioNode): AudioScheduledSo
  * hats = high-passed noise; toms/timpani = tuned sine drops; cymbals =
  * band-passed noise with a metallic FM shimmer. Returns the voice length.
  */
-function playDrum(context: BaseAudioContext, out: GainNode, noise: AudioBuffer, kind: DrumKind, degree: number, peak: number, time: number): number {
+function playDrum(context: BaseAudioContext, out: GainNode, noise: AudioBuffer, kind: DrumKind, degree: number, peak: number, time: number, rootNote: number): number {
   const level = peak * 1.6;
   out.gain.setValueAtTime(1, time);
   const noiseBurst = (type: BiquadFilterType, frequency: number, q: number, gain: number, length: number, offset = 0) => {
@@ -332,7 +363,57 @@ function playDrum(context: BaseAudioContext, out: GainNode, noise: AudioBuffer, 
     osc.stop(time + length + 0.05);
   };
 
+  /** Sum of decaying sine partials: [frequency ratio, gain, decay seconds]. */
+  const additive = (frequency: number, partials: Array<[number, number, number]>, attack: number, detuneCents = 0) => {
+    let longest = 0;
+    for (const [ratio, gain, decay] of partials) {
+      const osc = context.createOscillator();
+      osc.frequency.value = frequency * ratio;
+      osc.detune.value = detuneCents;
+      const g = context.createGain();
+      g.gain.setValueAtTime(0, time);
+      g.gain.linearRampToValueAtTime(level * gain, time + attack);
+      g.gain.exponentialRampToValueAtTime(0.0001, time + attack + decay);
+      osc.connect(g).connect(out);
+      osc.start(time);
+      osc.stop(time + attack + decay + 0.05);
+      longest = Math.max(longest, attack + decay);
+    }
+    return longest;
+  };
+  // Tuned one-shots treat `degree` as semitones above the instrument's root note.
+  const tuned = 440 * 2 ** ((rootNote + degree - 69) / 12);
+
   switch (kind) {
+    case "marimba": {
+      // Tuned bar: fundamental plus the 4th and 10th partials, mallet thump on top.
+      const decay = clamp(1.5 - ((rootNote + degree) - 48) / 36, 0.35, 1.6);
+      noiseBurst("lowpass", 900, 0.7, level * 0.25, 0.02);
+      return additive(tuned, [[1, 1, decay], [3.93, 0.32, decay * 0.25], [9.2, 0.1, decay * 0.1]], 0.002) + 0.05;
+    }
+    case "handpan": {
+      // Steel tonefield: fundamental, octave and compound fifth with a slow bloom; a slightly detuned twin adds shimmer.
+      const length = additive(tuned, [[1, 0.9, 3.4], [2, 0.42, 2.4], [3, 0.2, 1.6]], 0.006);
+      additive(tuned, [[1, 0.25, 3]], 0.012, 4);
+      noiseBurst("lowpass", 600, 0.8, level * 0.15, 0.03);
+      return length;
+    }
+    case "kalimba":
+      // Tine: clean fundamental, a bright inharmonic "tink" that dies fast.
+      return additive(tuned, [[1, 1, 2.2], [5.95, 0.28, 0.12], [2, 0.08, 0.8]], 0.0015);
+    case "tabla-na": {
+      // Dayan rim stroke: the loaded syahi makes the overtones nearly harmonic.
+      noiseBurst("bandpass", tuned * 6, 2, level * 0.25, 0.02);
+      return additive(tuned, [[1, 1, 0.9], [2, 0.55, 0.6], [3, 0.32, 0.4], [4, 0.2, 0.28], [5, 0.1, 0.2]], 0.002);
+    }
+    case "tabla-tin":
+      return additive(tuned, [[1, 0.9, 1.4], [2, 0.35, 1], [3, 0.18, 0.7]], 0.004);
+    case "tabla-te":
+      noiseBurst("bandpass", 2200, 1.5, level * 0.8, 0.06);
+      return additive(tuned, [[1, 0.3, 0.07]], 0.001) + 0.03;
+    case "tabla-ka":
+      noiseBurst("lowpass", 450, 0.8, level * 1.1, 0.09);
+      return 0.12;
     case "kick":
       tone("sine", 150, 45, 0.12, level * 1.6, 0.45);
       noiseBurst("highpass", 3000, 0.7, level * 0.25, 0.015);
@@ -363,13 +444,15 @@ function playDrum(context: BaseAudioContext, out: GainNode, noise: AudioBuffer, 
     }
     case "crash":
     case "ride": {
-      const length = kind === "crash" ? 2.2 : 1.1;
+      // Ride degree 1 = the bell: brighter, more focused and shorter.
+      const bell = kind === "ride" && degree >= 1;
+      const length = kind === "crash" ? 2.2 : bell ? 0.8 : 1.1;
       noiseBurst("bandpass", kind === "crash" ? 6500 : 9000, kind === "crash" ? 0.5 : 2, level * (kind === "crash" ? 0.75 : 0.35), length);
       const carrier = context.createOscillator();
       const modulator = context.createOscillator();
       const mod = context.createGain();
       carrier.type = "square";
-      carrier.frequency.value = kind === "crash" ? 420 : 610;
+      carrier.frequency.value = kind === "crash" ? 420 : bell ? 940 : 610;
       modulator.frequency.value = carrier.frequency.value * 2.76;
       mod.gain.value = carrier.frequency.value * 3;
       modulator.connect(mod).connect(carrier.frequency);

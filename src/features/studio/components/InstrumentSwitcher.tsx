@@ -1,7 +1,7 @@
 "use client";
 
 import { Dialog } from "@/components/ui/Dialog";
-import { INSTRUMENTS } from "@/features/instruments/registry";
+import { instrumentsByCategory } from "@/features/instruments/registry";
 import type { InstrumentId } from "@/types/instruments";
 import styles from "../studio.module.css";
 
@@ -15,8 +15,13 @@ interface InstrumentSwitcherProps {
 export function InstrumentSwitcher({ open, current, onClose, onSelect }: InstrumentSwitcherProps) {
   return (
     <Dialog open={open} onClose={onClose} variant="sheet" title="Choose an instrument">
+      {instrumentsByCategory().map((category) => (
+        <section key={category.id} className={styles.sheetSection} aria-labelledby={`switch-${category.id}`}>
+          <h3 id={`switch-${category.id}`} className={styles.sheetHeading}>
+            {category.label}
+          </h3>
       <ul className={styles.switcherList}>
-        {INSTRUMENTS.map((instrument) => (
+        {category.instruments.map((instrument) => (
           <li key={instrument.id}>
             <button
               type="button"
@@ -34,6 +39,8 @@ export function InstrumentSwitcher({ open, current, onClose, onSelect }: Instrum
           </li>
         ))}
       </ul>
+        </section>
+      ))}
     </Dialog>
   );
 }

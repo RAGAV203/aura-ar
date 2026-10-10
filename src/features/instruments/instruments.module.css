@@ -137,3 +137,23 @@
 .scroller > * {
   scroll-snap-align: start;
 }
+
+.intro {
+  color: var(--text-secondary);
+  margin-bottom: var(--space-5);
+  max-width: 60ch;
+}
+
+.category {
+  margin-bottom: var(--space-7);
+}
+
+.categoryTitle {
+  font-size: var(--text-xl);
+}
+
+.categoryDescription {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  margin: var(--space-1) 0 var(--space-4);
+}

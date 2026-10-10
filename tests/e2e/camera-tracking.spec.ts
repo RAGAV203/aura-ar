@@ -22,7 +22,9 @@ test("hand tracking starts, runs and releases the camera", async ({ page }) => {
   await expect(page.getByText(/inference \d+(\.\d)? ms \(worker\)/)).toBeVisible({ timeout: 15_000 });
   await page.waitForTimeout(3000);
   const fps = Number((await page.getByText(/\d+ fps/).textContent())?.split(" ")[0]);
-  expect(fps).toBeGreaterThan(20);
+  // Main-thread inference dropped headless rendering to ~5 fps; with the worker it stays well above
+  // this even when the CPU is shared with other tests (headless Chromium renders on the CPU).
+  expect(fps).toBeGreaterThan(15);
 
   const liveTracks = () => page.evaluate(() => (document.querySelector("video")?.srcObject as MediaStream | null)?.getVideoTracks().filter((t) => t.readyState === "live").length ?? 0);
   expect(await liveTracks()).toBe(1);

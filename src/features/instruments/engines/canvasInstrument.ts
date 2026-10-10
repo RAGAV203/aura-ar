@@ -134,7 +134,7 @@ export abstract class CanvasInstrument implements InstrumentEngine {
   }
 
   frame(dt: number, input: ControlInput): void {
-    const step = Math.min(dt, 1 / 20) * (this.reducedMotion ? 0.5 : 1);
+    const step = Math.min(Math.max(0, dt), 1 / 20) * (this.reducedMotion ? 0.5 : 1);
     this.time += step;
 
     // A new stroke (or tap) on a persistent canvas starts a new undo step.

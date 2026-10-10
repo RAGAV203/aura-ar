@@ -2,24 +2,17 @@
 
 **Move your hands. Shape your world.**
 
-Aura is a mobile-first creative web app: fourteen instruments that turn hand gestures (via the camera) or touch into generative visuals and sound. When the camera is on, the live view fills the screen and the artwork is drawn over it, aligned with your hands. Everything — camera processing, audio synthesis, storage — runs on the device. It installs as a PWA and works offline once cached.
+Aura is a mobile-first creative web app: 23 instruments that turn hand gestures (via the camera) or touch into sound and generative visuals. When the camera is on, the live view fills the screen and the instruments are drawn over it, aligned with your hands. Everything — camera processing, audio synthesis, storage — runs on the device. It installs as a PWA and works offline once cached.
 
-| Instrument | What you do | Sound |
-| --- | --- | --- |
-| Aurora | Steer luminous curtains; height brightens, two hands widen | Ambient pad |
-| InkFlow | Paint fluid ink; pinch sets brush width | Soft percussion |
-| Light Trails | Long-exposure light painting with sparks | Plucked accents |
-| Particle Bloom | Flower-shaped particle bursts | Filtered texture + swells |
-| Cosmic Garden | 3D star field; plant glowing orbs (Three.js / R3F) | Evolving drone |
-| String Harp | Sweep across strings of light to pluck them | Plucked harp |
-| Ripple Pond | Drop stones and leave wakes on a pane of water | Droplets + water wash |
-| Magnetic Field | Push and pull a field of glowing filings | FM bells |
-| Piano | Play a glass keyboard; notes rise as light bars | Synthesised piano |
-| Flute | Hold to blow; slide between notes, height = breath | Breathy flute (legato) |
-| Trumpet | Tongued notes, golden bell-flare rings, fanfares | Brass |
-| Orchestra | Conduct: beat the tempo, height = dynamics, point at sections | Strings, woodwinds, brass, timpani |
-| Drum Kit | Nine pads; tap or strike down through them | Synth kit |
-| Freestyle Drums | Air-drum anywhere; the zone picks the drum; built-in looper | Synth kit + looper |
+| Category | Instruments |
+| --- | --- |
+| **Strings** | **Guitar** (acoustic, nylon, electric, ukulele — chord pads, strumming, palm mute) · **Veena** (Carnatic ragas, meend, slides, tanpura) · **Sitar** (Hindustani ragas, jawari buzz, sympathetic strings) · **Violin & Cello** (bow speed = volume) · **String Harp** |
+| **Percussion** | **Drum Kit** (realistic kit, simulated sticks in both hands) · **Freestyle Drums** (air drumming with sticks + looper) · **Tabla** (bols, Dha/Dhin, bayan glide) · **Marimba** (mallets) · **Handpan** |
+| **Keys, winds & ensemble** | **Piano** · **Flute** · **Trumpet** · **Orchestra** (conduct strings, winds, brass, timpani) · **Kalimba** |
+| **Electronic** | **Theremin** (pitch antenna + volume loop, live tuner) |
+| **Light & space** | Aurora · InkFlow · Light Trails · Particle Bloom · Cosmic Garden (3D) · Ripple Pond · Magnetic Field |
+
+Sound is synthesised on the device: Karplus–Strong physical models for plucked strings (in tune to within a few cents, with real pitch bends), additive/FM synthesis for bars, tines, steel and bells, and native Web Audio voices for bowed, wind and brass sounds.
 
 Studio tools: camera backdrop with hand skeleton, front/back camera, undo, eraser, symmetry (mirror, quad, 6×, 8×), hide interface, PNG / project / video export (camera included only on explicit opt-in).
 

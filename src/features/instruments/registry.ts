@@ -1,4 +1,4 @@
-import type { InstrumentDefinition, InstrumentId, InstrumentParameters, ParameterSpec } from "@/types/instruments";
+import type { InstrumentCategory, InstrumentDefinition, InstrumentId, InstrumentParameters, ParameterSpec } from "@/types/instruments";
 import { clamp, isFiniteNumber } from "@/lib/math";
 
 const PENTATONIC = [0, 2, 4, 7, 9];
@@ -49,6 +49,7 @@ export const INSTRUMENTS: readonly InstrumentDefinition[] = [
     audio: { palette: "ambient-pad", rootNote: 50, scale: PENTATONIC },
     exportFormats: ["png", "json", "video"],
     palette: ["#55E7FF", "#9B7CFF", "#7CFFB2"],
+    category: "visual",
   },
   {
     id: "inkflow",
@@ -82,6 +83,7 @@ export const INSTRUMENTS: readonly InstrumentDefinition[] = [
     audio: { palette: "soft-percussion", rootNote: 57, scale: DORIAN },
     exportFormats: ["png", "json", "video"],
     palette: ["#FF79CF", "#9B7CFF", "#55E7FF"],
+    category: "visual",
   },
   {
     id: "light-trails",
@@ -116,6 +118,7 @@ export const INSTRUMENTS: readonly InstrumentDefinition[] = [
     audio: { palette: "pluck", rootNote: 55, scale: PENTATONIC },
     exportFormats: ["png", "json", "video"],
     palette: ["#FFC86B", "#FF79CF", "#55E7FF"],
+    category: "visual",
   },
   {
     id: "particle-bloom",
@@ -150,6 +153,7 @@ export const INSTRUMENTS: readonly InstrumentDefinition[] = [
     audio: { palette: "texture", rootNote: 62, scale: LYDIAN },
     exportFormats: ["png", "json", "video"],
     palette: ["#9B7CFF", "#FF79CF", "#FFC86B"],
+    category: "visual",
   },
   {
     id: "cosmic-garden",
@@ -185,6 +189,7 @@ export const INSTRUMENTS: readonly InstrumentDefinition[] = [
     audio: { palette: "drone", rootNote: 45, scale: LYDIAN },
     exportFormats: ["png", "json", "video"],
     palette: ["#55E7FF", "#9B7CFF", "#FF79CF"],
+    category: "visual",
   },
   {
     id: "string-harp",
@@ -221,6 +226,7 @@ export const INSTRUMENTS: readonly InstrumentDefinition[] = [
     audio: { palette: "harp", rootNote: 55, scale: PENTATONIC },
     exportFormats: ["png", "json", "video"],
     palette: ["#FFC86B", "#7CFFB2", "#55E7FF"],
+    category: "strings",
   },
   {
     id: "ripple-pond",
@@ -255,6 +261,7 @@ export const INSTRUMENTS: readonly InstrumentDefinition[] = [
     audio: { palette: "water", rootNote: 60, scale: [0, 2, 4, 7, 9, 11] },
     exportFormats: ["png", "json", "video"],
     palette: ["#55E7FF", "#9B7CFF", "#7CFFB2"],
+    category: "visual",
   },
   {
     id: "magnetic-field",
@@ -290,6 +297,7 @@ export const INSTRUMENTS: readonly InstrumentDefinition[] = [
     audio: { palette: "chime", rootNote: 64, scale: [0, 2, 4, 6, 9] },
     exportFormats: ["png", "json", "video"],
     palette: ["#55E7FF", "#FF79CF", "#9B7CFF"],
+    category: "visual",
   },
   {
     id: "piano",
@@ -326,6 +334,7 @@ export const INSTRUMENTS: readonly InstrumentDefinition[] = [
     audio: { palette: "piano-room", rootNote: 48, scale: [0, 2, 4, 5, 7, 9, 11] },
     exportFormats: ["png", "json", "video"],
     palette: ["#B39CFF", "#55E7FF", "#FF79CF"],
+    category: "keys-winds",
   },
   {
     id: "flute",
@@ -362,6 +371,7 @@ export const INSTRUMENTS: readonly InstrumentDefinition[] = [
     audio: { palette: "flute-air", rootNote: 72, scale: [0, 2, 4, 5, 7, 9, 11] },
     exportFormats: ["png", "json", "video"],
     palette: ["#55E7FF", "#7CFFB2", "#B39CFF"],
+    category: "keys-winds",
   },
   {
     id: "trumpet",
@@ -398,6 +408,7 @@ export const INSTRUMENTS: readonly InstrumentDefinition[] = [
     audio: { palette: "brass-hall", rootNote: 58, scale: [0, 2, 4, 5, 7, 9, 11] },
     exportFormats: ["png", "json", "video"],
     palette: ["#FFC86B", "#FF79CF", "#FFE7A0"],
+    category: "keys-winds",
   },
   {
     id: "orchestra",
@@ -434,29 +445,31 @@ export const INSTRUMENTS: readonly InstrumentDefinition[] = [
     audio: { palette: "orchestra-hall", rootNote: 48, scale: [0, 2, 4, 5, 7, 9, 11] },
     exportFormats: ["png", "json", "video"],
     palette: ["#FFC86B", "#FF79CF", "#7CFFB2"],
+    category: "keys-winds",
   },
   {
     id: "drum-kit",
     name: "Drum Kit",
-    tagline: "Play a kit made of light",
-    description: "Nine pads laid out like a real kit: kick, snare, hi-hats, three toms, crash and ride. Tap them, or strike down through a pad with your hand like a stick — harder strikes hit louder. Your groove scrolls past at the top.",
+    tagline: "Sticks in both hands, a full kit",
+    description: "A full kit seen from the throne, with a simulated drumstick in each hand. Swing down so the stick tip passes through a drum head — the stick snaps, hits and rebounds like real sticking. Cymbal edges, ride bell, snare rimshots and open hi-hat all respond; taps hit exactly where you tap.",
     renderer: "canvas2d",
     tracking: ["hands"],
     persistentCanvas: false,
     parameters: [
-      { key: "size", label: "Pad size", min: 0.7, max: 1.4, step: 0.05, defaultValue: 1, description: "Size of the drum pads." },
+      { key: "size", label: "Kit size", min: 0.7, max: 1.2, step: 0.05, defaultValue: 1, description: "Size of the kit on screen." },
+      { key: "finish", label: "Finish", min: 0, max: 1, step: 1, defaultValue: 0, description: "0 midnight sparkle, 1 ocean blue." },
       { key: "sensitivity", label: "Strike sensitivity", min: 0.5, max: 2, step: 0.1, defaultValue: 1, description: "How fast a hand strike must be (higher needs faster strikes)." },
       { key: "volume", label: "Kit volume", min: 0.3, max: 1, step: 0.05, defaultValue: 0.85, description: "Overall loudness of the drums." },
     ],
     presets: [
-      { id: "studio-kit", name: "Studio Kit", parameters: { size: 1, sensitivity: 1, volume: 0.85 } },
-      { id: "big-pads", name: "Big Pads", parameters: { size: 1.3, sensitivity: 0.8, volume: 0.85 } },
-      { id: "quiet-practice", name: "Quiet Practice", parameters: { size: 1, sensitivity: 1, volume: 0.45 } },
+      { id: "studio-kit", name: "Studio Kit", parameters: { size: 1, finish: 0, sensitivity: 1, volume: 0.85 } },
+      { id: "ocean", name: "Ocean Blue", parameters: { size: 1, finish: 1, sensitivity: 0.9, volume: 0.85 } },
+      { id: "quiet-practice", name: "Quiet Practice", parameters: { size: 0.9, finish: 0, sensitivity: 1, volume: 0.45 } },
     ],
     gestureMappings: [
-      { input: "Strike down through a pad", effect: "Hits it" },
-      { input: "Strike speed", effect: "Loudness" },
-      { input: "Pinch over a pad", effect: "Gentle hit" },
+      { input: "Swing the stick tip through a drum", effect: "Hits it" },
+      { input: "Swing speed", effect: "Loudness" },
+      { input: "Cymbal edge vs centre", effect: "Open hat, ride bell" },
       { input: "Hold an open palm", effect: "Kick + crash finish" },
     ],
     touchMappings: [
@@ -468,6 +481,7 @@ export const INSTRUMENTS: readonly InstrumentDefinition[] = [
     audio: { palette: "drum-room", rootNote: 36, scale: [0, 2, 4, 5, 7, 9, 11] },
     exportFormats: ["png", "json", "video"],
     palette: ["#55E7FF", "#FF79CF", "#FFC86B"],
+    category: "percussion",
   },
   {
     id: "freestyle-drums",
@@ -503,10 +517,329 @@ export const INSTRUMENTS: readonly InstrumentDefinition[] = [
     audio: { palette: "drum-loop", rootNote: 36, scale: [0, 2, 4, 5, 7, 9, 11] },
     exportFormats: ["png", "json", "video"],
     palette: ["#FF79CF", "#55E7FF", "#FFC86B"],
+    category: "percussion",
+  },
+  {
+    id: "guitar",
+    name: "Guitar",
+    tagline: "Strum real strings",
+    description: "Pick a chord on the left and strum across the strings with a pick that follows your hand — hold a pinch to grip the pick. Modelled strings ring, buzz and decay like the real thing; muted strings chuck, and an open palm chokes them.",
+    renderer: "canvas2d",
+    tracking: ["hands"],
+    persistentCanvas: false,
+    parameters: [
+      { key: "style", label: "Style", min: 0, max: 3, step: 1, defaultValue: 0, description: "0 acoustic, 1 nylon, 2 electric, 3 ukulele." },
+      { key: "key", label: "Key", min: 0, max: 11, step: 1, defaultValue: 7, description: "Key of the chord set (0 = C, 7 = G)." },
+    ],
+    presets: [
+      { id: "campfire", name: "Campfire Acoustic", parameters: { style: 0, key: 7 } },
+      { id: "flamenco", name: "Nylon", parameters: { style: 1, key: 9 } },
+      { id: "clean-electric", name: "Electric", parameters: { style: 2, key: 4 } },
+      { id: "ukulele", name: "Ukulele", parameters: { style: 3, key: 0 } },
+    ],
+    gestureMappings: [
+      { input: "Pinch and sweep down / up", effect: "Strums the strings" },
+      { input: "Rest a hand on a chord", effect: "Changes chord" },
+      { input: "Pinch on one string", effect: "Picks that string" },
+      { input: "Hold an open palm", effect: "Palm-mutes (chokes)" },
+    ],
+    touchMappings: [
+      { input: "Tap a chord", effect: "Changes chord" },
+      { input: "Swipe across strings", effect: "Strums" },
+      { input: "Tap a string", effect: "Picks it" },
+      { input: "Double tap", effect: "Chokes the strings" },
+    ],
+    audio: { palette: "guitar-room", rootNote: 52, scale: [0, 2, 4, 5, 7, 9, 11] },
+    exportFormats: ["png", "json", "video"],
+    palette: ["#FFC86B", "#FF79CF", "#55E7FF"],
+    category: "strings",
+  },
+  {
+    id: "veena",
+    name: "Veena",
+    tagline: "Carnatic strings, raga by raga",
+    description: "The Saraswati veena: brass frets set to a raga, sargam on every fret and a tanpura drone underneath. Pinch or tap to pluck, pull the string while holding for meend, and slide along the neck to glide between swaras.",
+    renderer: "canvas2d",
+    tracking: ["hands"],
+    persistentCanvas: false,
+    parameters: [
+      { key: "raga", label: "Raga", min: 0, max: 4, step: 1, defaultValue: 0, description: "Mayamalavagowla, Shankarabharanam, Kalyani, Kharaharapriya, Mohanam." },
+      { key: "sa", label: "Sa (tonic)", min: -6, max: 6, step: 1, defaultValue: 0, description: "Shift the tonic in semitones (0 = D)." },
+      { key: "meend", label: "Meend range", min: 0.5, max: 4, step: 0.5, defaultValue: 2.5, description: "How far pulling the string can raise the pitch (semitones)." },
+      { key: "drone", label: "Tanpura", min: 0, max: 1, step: 0.05, defaultValue: 0.45, description: "Volume of the drone." },
+    ],
+    presets: [
+      { id: "mayamalavagowla", name: "Mayamalavagowla", parameters: { raga: 0, sa: 0, meend: 2.5, drone: 0.45 } },
+      { id: "kalyani", name: "Kalyani", parameters: { raga: 2, sa: 0, meend: 2.5, drone: 0.45 } },
+      { id: "mohanam", name: "Mohanam", parameters: { raga: 4, sa: 2, meend: 2, drone: 0.5 } },
+    ],
+    gestureMappings: [
+      { input: "Pinch over a fret", effect: "Plucks that swara" },
+      { input: "Pull while pinching", effect: "Meend (pitch bend)" },
+      { input: "Slide along the neck", effect: "Glides between swaras" },
+      { input: "Hold an open palm", effect: "Strums the tala strings" },
+    ],
+    touchMappings: [
+      { input: "Press a fret", effect: "Plucks" },
+      { input: "Drag up / down", effect: "Meend" },
+      { input: "Slide sideways", effect: "Glide" },
+      { input: "Double tap", effect: "Tala strings" },
+    ],
+    audio: { palette: "veena-tanpura", rootNote: 62, scale: [0, 2, 4, 5, 7, 9, 11] },
+    exportFormats: ["png", "json", "video"],
+    palette: ["#FFC86B", "#FF9A5A", "#B39CFF"],
+    category: "strings",
+  },
+  {
+    id: "sitar",
+    name: "Sitar",
+    tagline: "Buzzing jawari and sympathetic strings",
+    description: "Arched frets set to a Hindustani raga, the bright jawari buzz, and thirteen sympathetic strings that ring when you play their notes. Pluck, pull for meend, slide, and open your palm for the chikari strings.",
+    renderer: "canvas2d",
+    tracking: ["hands"],
+    persistentCanvas: false,
+    parameters: [
+      { key: "raga", label: "Raga", min: 0, max: 4, step: 1, defaultValue: 0, description: "Yaman, Bhairav, Kafi, Bhupali, Malkauns." },
+      { key: "sa", label: "Sa (tonic)", min: -6, max: 6, step: 1, defaultValue: 0, description: "Shift the tonic in semitones (0 = C♯)." },
+      { key: "meend", label: "Meend range", min: 0.5, max: 5, step: 0.5, defaultValue: 3.5, description: "How far pulling the string can raise the pitch (semitones)." },
+      { key: "drone", label: "Tanpura", min: 0, max: 1, step: 0.05, defaultValue: 0.4, description: "Volume of the drone." },
+    ],
+    presets: [
+      { id: "yaman", name: "Evening Yaman", parameters: { raga: 0, sa: 0, meend: 3.5, drone: 0.4 } },
+      { id: "bhairav", name: "Dawn Bhairav", parameters: { raga: 1, sa: 0, meend: 3, drone: 0.45 } },
+      { id: "malkauns", name: "Midnight Malkauns", parameters: { raga: 4, sa: -1, meend: 4, drone: 0.5 } },
+    ],
+    gestureMappings: [
+      { input: "Pinch over a fret", effect: "Plucks — sympathetic strings answer" },
+      { input: "Pull while pinching", effect: "Meend (up to two notes)" },
+      { input: "Slide along the neck", effect: "Glides" },
+      { input: "Hold an open palm", effect: "Chikari strum" },
+    ],
+    touchMappings: [
+      { input: "Press a fret", effect: "Plucks" },
+      { input: "Drag up / down", effect: "Meend" },
+      { input: "Slide sideways", effect: "Glide" },
+      { input: "Double tap", effect: "Chikari strum" },
+    ],
+    audio: { palette: "sitar-tanpura", rootNote: 61, scale: [0, 2, 4, 5, 7, 9, 11] },
+    exportFormats: ["png", "json", "video"],
+    palette: ["#E3C27A", "#FF79CF", "#9B7CFF"],
+    category: "strings",
+  },
+  {
+    id: "violin",
+    name: "Violin & Cello",
+    tagline: "Bow it — speed is volume",
+    description: "Height chooses the note, like fingers on the fingerboard; bowing sideways makes the sound, and bow speed is loudness. Change direction for a natural bow change. With two hands, one fingers notes while the other bows.",
+    renderer: "canvas2d",
+    tracking: ["hands"],
+    persistentCanvas: false,
+    parameters: [
+      { key: "body", label: "Instrument", min: 0, max: 2, step: 1, defaultValue: 0, description: "0 violin, 1 viola, 2 cello." },
+      { key: "scale", label: "Scale", min: 0, max: 2, step: 1, defaultValue: 0, description: "0 major, 1 minor, 2 pentatonic." },
+      { key: "range", label: "Notes", min: 6, max: 18, step: 1, defaultValue: 12, description: "How many notes span the height." },
+      { key: "portamento", label: "Portamento", min: 0, max: 1, step: 0.05, defaultValue: 0.2, description: "How much notes slide into each other." },
+    ],
+    presets: [
+      { id: "violin", name: "Violin", parameters: { body: 0, scale: 0, range: 12, portamento: 0.2 } },
+      { id: "viola", name: "Viola", parameters: { body: 1, scale: 1, range: 11, portamento: 0.25 } },
+      { id: "cello", name: "Cello", parameters: { body: 2, scale: 1, range: 12, portamento: 0.35 } },
+    ],
+    gestureMappings: [
+      { input: "Pinch and move sideways", effect: "Bows — speed is volume" },
+      { input: "Hand height", effect: "Chooses the note" },
+      { input: "Second hand", effect: "Fingers notes while the first bows" },
+      { input: "Change direction", effect: "Bow change" },
+    ],
+    touchMappings: [
+      { input: "Press and drag sideways", effect: "Bows" },
+      { input: "Height of your finger", effect: "Chooses the note" },
+      { input: "Two fingers", effect: "One fingers, one bows" },
+    ],
+    audio: { palette: "bowed-hall", rootNote: 55, scale: [0, 2, 4, 5, 7, 9, 11] },
+    exportFormats: ["png", "json", "video"],
+    palette: ["#FF9A5A", "#FFC86B", "#B39CFF"],
+    category: "strings",
+  },
+  {
+    id: "theremin",
+    name: "Theremin",
+    tagline: "Play without touching",
+    description: "The original touch-free instrument. Move one hand towards the antenna for higher pitch; raise the other over the volume loop to play louder. A live tuner shows how close you are to each note.",
+    renderer: "canvas2d",
+    tracking: ["hands"],
+    persistentCanvas: false,
+    parameters: [
+      hue(190),
+      { key: "octave", label: "Lowest octave", min: 2, max: 5, step: 1, defaultValue: 3, description: "Register of the farthest position." },
+      { key: "range", label: "Range", min: 1, max: 4, step: 1, defaultValue: 3, description: "Octaves between far and near." },
+      { key: "snap", label: "Snap to notes", min: 0, max: 1, step: 0.05, defaultValue: 0, description: "0 is a true theremin; higher pulls towards scale notes." },
+      { key: "snapScale", label: "Snap scale", min: 0, max: 2, step: 1, defaultValue: 0, description: "0 chromatic (none), 1 major, 2 pentatonic." },
+    ],
+    presets: [
+      { id: "classic", name: "Classic", parameters: { hue: 190, octave: 3, range: 3, snap: 0, snapScale: 0 } },
+      { id: "assisted", name: "Assisted", parameters: { hue: 280, octave: 3, range: 2, snap: 0.7, snapScale: 1 } },
+      { id: "sci-fi", name: "Sci-Fi", parameters: { hue: 140, octave: 4, range: 4, snap: 0, snapScale: 0 } },
+    ],
+    gestureMappings: [
+      { input: "Hand towards the antenna", effect: "Higher pitch" },
+      { input: "Other hand raised", effect: "Louder" },
+      { input: "Small shakes", effect: "Natural vibrato" },
+    ],
+    touchMappings: [
+      { input: "Drag sideways", effect: "Pitch" },
+      { input: "Drag up / down", effect: "Volume" },
+      { input: "Second finger", effect: "Separate volume control" },
+    ],
+    audio: { palette: "theremin-air", rootNote: 48, scale: [0, 2, 4, 5, 7, 9, 11] },
+    exportFormats: ["png", "json", "video"],
+    palette: ["#55E7FF", "#7CFFB2", "#9B7CFF"],
+    category: "electronic",
+  },
+  {
+    id: "handpan",
+    name: "Handpan",
+    tagline: "Steel tones that bloom",
+    description: "A steel handpan with a central ding and tonefields arranged in the zig-zag order of real instruments. Tap the tonefields, or tap down onto them in the air, and watch ripples spread across the steel.",
+    renderer: "canvas2d",
+    tracking: ["hands"],
+    persistentCanvas: false,
+    parameters: [
+      hue(200),
+      { key: "scale", label: "Scale", min: 0, max: 3, step: 1, defaultValue: 0, description: "0 D Kurd, 1 Celtic, 2 Hijaz, 3 Pygmy." },
+    ],
+    presets: [
+      { id: "kurd", name: "D Kurd", parameters: { hue: 200, scale: 0 } },
+      { id: "celtic", name: "Celtic", parameters: { hue: 150, scale: 1 } },
+      { id: "hijaz", name: "Hijaz", parameters: { hue: 20, scale: 2 } },
+    ],
+    gestureMappings: [
+      { input: "Tap down onto a tonefield", effect: "Plays it" },
+      { input: "Strike speed", effect: "Loudness" },
+      { input: "Hold an open palm", effect: "Plays the ding" },
+    ],
+    touchMappings: [
+      { input: "Tap a tonefield", effect: "Plays it" },
+      { input: "Several fingers", effect: "Chords" },
+    ],
+    audio: { palette: "handpan-air", rootNote: 50, scale: [0, 2, 4, 5, 7, 9, 11] },
+    exportFormats: ["png", "json", "video"],
+    palette: ["#55E7FF", "#B39CFF", "#FFC86B"],
+    category: "percussion",
+  },
+  {
+    id: "marimba",
+    name: "Marimba",
+    tagline: "Rosewood bars and mallets",
+    description: "Rosewood bars over resonator tubes, laid out like a keyboard. A mallet in each hand: strike down onto a bar and the mallet bounces back. Tap bars to play them directly.",
+    renderer: "canvas2d",
+    tracking: ["hands"],
+    persistentCanvas: false,
+    parameters: [
+      { key: "bars", label: "Bars", min: 8, max: 22, step: 1, defaultValue: 15, description: "Number of natural bars across the view." },
+      { key: "octave", label: "Octave", min: -1, max: 2, step: 1, defaultValue: 0, description: "Shift the range (0 starts at C3)." },
+    ],
+    presets: [
+      { id: "concert", name: "Concert", parameters: { bars: 15, octave: 0 } },
+      { id: "xylophone", name: "High Bars", parameters: { bars: 12, octave: 2 } },
+      { id: "bass-marimba", name: "Bass Marimba", parameters: { bars: 10, octave: -1 } },
+    ],
+    gestureMappings: [
+      { input: "Strike down with a mallet", effect: "Plays the bar" },
+      { input: "Strike speed", effect: "Loudness" },
+      { input: "Two hands", effect: "Two mallets" },
+    ],
+    touchMappings: [
+      { input: "Tap a bar", effect: "Plays it" },
+      { input: "Slide across bars", effect: "Rolls" },
+    ],
+    audio: { palette: "marimba-hall", rootNote: 48, scale: [0, 2, 4, 5, 7, 9, 11] },
+    exportFormats: ["png", "json", "video"],
+    palette: ["#FF9A5A", "#FFC86B", "#FF79CF"],
+    category: "percussion",
+  },
+  {
+    id: "tabla",
+    name: "Tabla",
+    tagline: "Speak in bols",
+    description: "Bayan and dayan. Where you strike picks the bol — Na on the rim, Tin in the middle, Te at the centre, Ge on the bass — and striking both together makes Dha or Dhin. Keep pressing after a Ge and push up to glide the bass.",
+    renderer: "canvas2d",
+    tracking: ["hands"],
+    persistentCanvas: false,
+    parameters: [
+      { key: "tuning", label: "Bayan tuning", min: -3, max: 5, step: 1, defaultValue: 1, description: "Pitch of the bass drum." },
+      { key: "sensitivity", label: "Strike sensitivity", min: 0.5, max: 2, step: 0.1, defaultValue: 1, description: "How fast a hand strike must be." },
+      { key: "drone", label: "Tanpura", min: 0, max: 1, step: 0.05, defaultValue: 0.35, description: "Volume of the drone." },
+      { key: "volume", label: "Volume", min: 0.3, max: 1, step: 0.05, defaultValue: 0.9, description: "Loudness of the strokes." },
+    ],
+    presets: [
+      { id: "teentaal", name: "Practice", parameters: { tuning: 1, sensitivity: 1, drone: 0.35, volume: 0.9 } },
+      { id: "dry", name: "No Drone", parameters: { tuning: 1, sensitivity: 1, drone: 0, volume: 0.9 } },
+      { id: "deep", name: "Deep Bayan", parameters: { tuning: -2, sensitivity: 0.9, drone: 0.4, volume: 0.95 } },
+    ],
+    gestureMappings: [
+      { input: "Strike the dayan rim / middle / centre", effect: "Na / Tin / Te" },
+      { input: "Strike the bayan", effect: "Ge (bass)" },
+      { input: "Strike while pinching", effect: "Ka (flat slap)" },
+      { input: "Both together", effect: "Dha / Dhin" },
+    ],
+    touchMappings: [
+      { input: "Tap a zone", effect: "Plays that bol" },
+      { input: "Hold a Ge and push up", effect: "Bass glide" },
+      { input: "Two fingers together", effect: "Dha / Dhin" },
+    ],
+    audio: { palette: "tabla-tanpura", rootNote: 61, scale: [0, 2, 4, 5, 7, 9, 11] },
+    exportFormats: ["png", "json", "video"],
+    palette: ["#FF9A5A", "#FFC86B", "#B39CFF"],
+    category: "percussion",
+  },
+  {
+    id: "kalimba",
+    name: "Kalimba",
+    tagline: "A thumb piano of steel tines",
+    description: "Steel tines on a wooden board, lowest in the middle and alternating outward like a real kalimba. Tap or pinch a tine to pluck it, or slide across the tips for a glissando.",
+    renderer: "canvas2d",
+    tracking: ["hands"],
+    persistentCanvas: false,
+    parameters: [
+      { key: "tines", label: "Tines", min: 8, max: 21, step: 1, defaultValue: 17, description: "Number of tines." },
+      { key: "scale", label: "Scale", min: 0, max: 2, step: 1, defaultValue: 0, description: "0 major, 1 minor, 2 pentatonic." },
+      { key: "key", label: "Key", min: -6, max: 6, step: 1, defaultValue: 0, description: "Transpose in semitones (0 = C)." },
+    ],
+    presets: [
+      { id: "c-major", name: "C Major 17", parameters: { tines: 17, scale: 0, key: 0 } },
+      { id: "lullaby", name: "Pentatonic Lullaby", parameters: { tines: 13, scale: 2, key: 2 } },
+      { id: "minor", name: "A Minor", parameters: { tines: 17, scale: 1, key: -3 } },
+    ],
+    gestureMappings: [
+      { input: "Pinch over a tine", effect: "Plucks it" },
+      { input: "Pinch and slide across", effect: "Glissando" },
+    ],
+    touchMappings: [
+      { input: "Tap a tine", effect: "Plucks it" },
+      { input: "Slide across the tips", effect: "Glissando" },
+    ],
+    audio: { palette: "kalimba-air", rootNote: 60, scale: [0, 2, 4, 5, 7, 9, 11] },
+    exportFormats: ["png", "json", "video"],
+    palette: ["#E8ECF5", "#FFC86B", "#55E7FF"],
+    category: "keys-winds",
   },
 ];
 
 export const INSTRUMENT_IDS = INSTRUMENTS.map((i) => i.id);
+
+export const CATEGORIES: Array<{ id: InstrumentCategory; label: string; description: string }> = [
+  { id: "strings", label: "Strings", description: "Plucked, strummed and bowed — guitar, veena, sitar, violin and harp." },
+  { id: "percussion", label: "Percussion", description: "Sticks, mallets and hands — kits, tabla, marimba and handpan." },
+  { id: "keys-winds", label: "Keys, winds & ensemble", description: "Melody instruments and a whole orchestra to conduct." },
+  { id: "electronic", label: "Electronic", description: "Instruments you play without touching anything." },
+  { id: "visual", label: "Light & space", description: "Generative visual instruments with ambient sound." },
+];
+
+/** Instruments grouped by category, in display order. */
+export function instrumentsByCategory(): Array<{ id: InstrumentCategory; label: string; description: string; instruments: InstrumentDefinition[] }> {
+  return CATEGORIES.map((category) => ({ ...category, instruments: INSTRUMENTS.filter((i) => i.category === category.id) })).filter((c) => c.instruments.length > 0);
+}
 
 export function isInstrumentId(value: unknown): value is InstrumentId {
   return typeof value === "string" && (INSTRUMENT_IDS as string[]).includes(value);

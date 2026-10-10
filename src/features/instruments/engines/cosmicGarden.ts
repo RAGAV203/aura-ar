@@ -83,7 +83,7 @@ export class CosmicGardenModel implements InstrumentEngine {
   }
 
   frame(dt: number, input: ControlInput): void {
-    const step = Math.min(dt, 1 / 20) * (this.reducedMotion ? 0.4 : 1);
+    const step = Math.min(Math.max(0, dt), 1 / 20) * (this.reducedMotion ? 0.4 : 1);
     this.time += step;
     const primary = input.points.find((p) => !p.lifted);
     let targetYaw = Math.sin(this.time * 0.05) * 0.25;

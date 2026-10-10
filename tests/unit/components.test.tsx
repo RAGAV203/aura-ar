@@ -275,6 +275,7 @@ describe("Touch input", () => {
 
     element.dispatchEvent(pointer("pointerdown", { x: 50, y: 50, t: 0 }));
     expect(input.points[0]).toMatchObject({ source: "touch", engaged: true, position: { x: 0.25, y: 0.5 } });
+    expect(input.points[0]?.id).toMatch(/^touch-1-\d+$/);
     element.dispatchEvent(pointer("pointerdown", { id: 2, x: 150, y: 50, t: 5 }));
     expect(input.spread).toBeCloseTo(0.5);
     element.dispatchEvent(pointer("pointermove", { id: 2, x: 190, y: 50, t: 50 }));
@@ -282,11 +283,14 @@ describe("Touch input", () => {
     element.dispatchEvent(pointer("pointerup", { id: 2, x: 190, y: 50, t: 600 }));
     element.dispatchEvent(pointer("pointerup", { x: 50, y: 50, t: 100 }));
     expect(input.drainEvents()).toEqual([{ type: "tap", position: { x: 0.25, y: 0.5 }, source: "touch" }]);
+    input.collectPoints(); // a frame passes
 
     element.dispatchEvent(pointer("pointerdown", { x: 52, y: 50, t: 200 }));
     element.dispatchEvent(pointer("pointerup", { x: 52, y: 50, t: 260 }));
     expect(input.drainEvents()[0]?.type).toBe("accent");
-    expect(input.points).toHaveLength(0);
+    // A tap released before any frame saw it is still delivered once, then dropped.
+    expect(input.collectPoints()).toHaveLength(1);
+    expect(input.collectPoints()).toHaveLength(0);
     detach();
   });
 });

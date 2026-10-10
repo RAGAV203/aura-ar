@@ -91,3 +91,28 @@ describe("symmetry", () => {
     for (const map of maps) expect(radius(map(p))).toBeCloseTo(radius(p));
   });
 });
+
+describe("quick taps", () => {
+  it("delivers several taps that all happen within one frame", async () => {
+    const { TouchInput } = await import("@/features/studio/input/touchInput");
+    const element = document.createElement("div");
+    element.getBoundingClientRect = () => ({ left: 0, top: 0, width: 100, height: 100, right: 100, bottom: 100, x: 0, y: 0, toJSON: () => ({}) });
+    element.setPointerCapture = () => {};
+    const input = new TouchInput();
+    input.attach(element);
+    const fire = (type: string, x: number, t: number) => {
+      const event = new MouseEvent(type, { clientX: x, clientY: 50, bubbles: true, button: 0 });
+      Object.defineProperties(event, { pointerId: { value: 1 }, pointerType: { value: "mouse" }, pressure: { value: 0 }, timeStamp: { value: t } });
+      element.dispatchEvent(event);
+    };
+    for (const [x, t] of [[20, 0], [50, 10], [80, 20]] as const) {
+      fire("pointerdown", x, t);
+      fire("pointerup", x, t + 2);
+      fire("lostpointercapture", x, t + 3);
+    }
+    const points = input.collectPoints();
+    expect(points.map((p) => Math.round(p.position.x * 100))).toEqual([20, 50, 80]);
+    expect(new Set(points.map((p) => p.id)).size).toBe(3);
+    expect(input.collectPoints()).toHaveLength(0);
+  });
+});

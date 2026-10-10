@@ -65,7 +65,7 @@ test("camera already in use shows a specific message", async ({ page }) => {
 test("switching between every instrument", async ({ page }) => {
   await skipOnboarding(page);
   await page.goto("/studio/?instrument=aurora");
-  for (const name of ["InkFlow", "Light Trails", "Particle Bloom", "Cosmic Garden", "String Harp", "Ripple Pond", "Magnetic Field", "Piano", "Flute", "Trumpet", "Orchestra", "Drum Kit", "Freestyle Drums", "Aurora"]) {
+  for (const name of ["InkFlow", "Light Trails", "Particle Bloom", "Cosmic Garden", "String Harp", "Ripple Pond", "Magnetic Field", "Piano", "Flute", "Trumpet", "Orchestra", "Drum Kit", "Freestyle Drums", "Guitar", "Veena", "Sitar", "Violin & Cello", "Theremin", "Handpan", "Marimba", "Tabla", "Kalimba", "Aurora"]) {
     await page.getByRole("button", { name: "Instruments", exact: true }).click();
     await page.getByRole("dialog").getByRole("button", { name: new RegExp(name) }).click();
     // Playing in the previous instrument left unsaved work; discard it.

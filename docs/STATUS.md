@@ -6,9 +6,9 @@
 | --- | --- |
 | `npm run lint` (ESLint 9 + Next + React Compiler rules) | Pass, 0 warnings |
 | `npm run typecheck` (strict, `noUncheckedIndexedAccess`) | Pass |
-| `npm test` — 86 unit/component tests | Pass |
-| `npm run build` — static export, 85-file / 2.80 MB precache | Pass |
-| `npm run test:e2e` — 25 Playwright tests (desktop + Pixel 7 emulation), incl. hydration checks, camera backdrop, tools and all 14 instruments | Pass |
+| `npm test` — 103 unit/component tests | Pass |
+| `npm run build` — static export, 87-file / 2.91 MB precache | Pass |
+| `npm run test:e2e` — 25 Playwright tests (desktop + Pixel 7 emulation), incl. hydration checks, camera backdrop, tools and all 23 instruments (switching, touch response, sound-on playback without errors) | Pass |
 | `npm audit --omit=dev` | 0 vulnerabilities |
 
 E2E coverage: first visit without camera, touch-only session, camera denied / busy recovery, switching all five instruments, unsaved-work guard, save → reopen with snapshot restore, project export → import, corrupted import rejection, PNG export, failed model download recovery, pause, offline launch after caching, service-worker update with consent and draft preservation, and the **real** MediaPipe pipeline (fake camera → model download → worker inference → camera released).
@@ -20,7 +20,7 @@ E2E coverage: first visit without camera, touch-only session, camera denied / bu
 | Production build succeeds | ✅ |
 | Type checking and linting pass | ✅ |
 | Critical automated tests pass | ✅ |
-| All fourteen instruments functional | ✅ (touch verified e2e; gesture paths unit-tested and the inference pipeline verified with a fake camera) |
+| All 23 instruments functional | ✅ (touch verified e2e; gesture paths unit-tested and the inference pipeline verified with a fake camera) |
 | Touch-only operation works | ✅ |
 | Camera permission requested at the correct time | ✅ (e2e asserts zero requests until the user chooses camera) |
 | Camera and audio resources cleaned up | ✅ camera verified e2e; audio layer swapped/stopped on instrument change and studio exit (code-reviewed, not instrumented in tests) |
@@ -38,7 +38,7 @@ E2E coverage: first visit without camera, touch-only session, camera denied / bu
 
 ## Known limitations
 
-0. **Sound quality is synthesised, not sampled.** Piano, flute, trumpet, orchestra and drums are built from oscillators and noise on the device (no downloads). They are expressive but not a substitute for sampled instruments; this has only been judged by ear in desktop Chromium.
+0. **Sound quality is synthesised, not sampled.** Strings use physical models; piano, winds, brass, orchestra, drums, tabla and the tuned percussion are built from oscillators and noise on the device (no downloads). They are expressive but not a substitute for sampled instruments; this has only been judged by ear in desktop Chromium.
 
 1. **No real-device testing yet.** iPhone Safari, iOS Home Screen mode and Android Chrome have not been tested on hardware: camera orientation, front/rear switching (rear camera isn't exposed in the UI yet), thermals, memory, audio unlock with the silent switch, gesture accuracy in real lighting. These are release blockers per the plan.
 2. **Gesture thresholds are tuned on synthetic landmarks.** Pinch (0.32/0.48 of hand size), palm hold and smoothing defaults need tuning with real hands; sensitivity is user-adjustable meanwhile.

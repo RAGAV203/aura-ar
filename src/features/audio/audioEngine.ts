@@ -1,7 +1,8 @@
 import { AppError, logDiagnostic } from "@/lib/errors/appErrors";
 import type { AudioConfig, AudioNoteEvent, AudioTargets, VoiceCommand } from "@/types/instruments";
 import { AUDIO_LIMITS, clampAudioTargets, clampNote, clampVoiceCommand, NoteRateLimiter, volumeToGain } from "./audioMath";
-import { createSustainedVoice, type SustainedVoice } from "./sustainedVoices";
+import { createPluckedVoice, isPluckedKind } from "./pluckedString";
+import { createSustainedVoice, type SustainedVoice, type SynthKind } from "./sustainedVoices";
 import { createContinuousLayer, createNoiseBuffer, playNote, type ContinuousLayer } from "./voices";
 
 export type AudioEngineState = "locked" | "running" | "suspended" | "failed";
@@ -146,8 +147,15 @@ export class AudioEngine {
       oldest.release(0.05);
       this.voices.delete(oldestId);
     }
-    const voice = createSustainedVoice(context, this.bus, this.noise, command.kind, command.midi, command.velocity, command.pan, () => undefined);
-    this.voices.set(command.id, voice);
+    const id = command.id;
+    // Plucked strings end on their own; forget them so the voice cap stays accurate.
+    const onEnded = () => {
+      if (this.voices.get(id) === voice) this.voices.delete(id);
+    };
+    const voice: SustainedVoice = isPluckedKind(command.kind)
+      ? createPluckedVoice(context, this.bus, command.kind, command.midi, command.velocity, command.pan, onEnded)
+      : createSustainedVoice(context, this.bus, this.noise, command.kind as SynthKind, command.midi, command.velocity, command.pan, onEnded);
+    this.voices.set(id, voice);
   }
 
   /** Releases every held note (pause, instrument switch, cut-off). */

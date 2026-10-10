@@ -42,7 +42,7 @@ export class InputHub {
     this.touch.tick(dt, now);
     const keyPoint = this.keyboard.tick(dt);
     const handPoints = this.gesture ? gestureToControlPoints(this.gesture, this.view) : [];
-    const points = this.touch.points;
+    const points = this.touch.collectPoints();
     if (keyPoint) points.push(keyPoint);
     points.push(...handPoints);
     this.snapshot.points = points;

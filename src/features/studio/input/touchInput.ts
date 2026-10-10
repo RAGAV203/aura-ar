@@ -8,6 +8,10 @@ interface PointerState {
   downY: number;
   lastTime: number;
   maxTravel: number;
+  /** Collected by at least one frame. */
+  observed: boolean;
+  /** Released before any frame saw it: kept for exactly one frame so quick taps still register. */
+  releasing: boolean;
 }
 
 const TAP_MAX_MS = 260;
@@ -21,12 +25,20 @@ const DOUBLE_TAP_MS = 320;
  * (set in CSS) prevents page scrolling only while interacting with the art.
  */
 export class TouchInput {
-  private pointers = new Map<number, PointerState>();
+  /** Presses keyed by their own id (several quick taps from one mouse can be pending at once). */
+  private pointers = new Map<string, PointerState>();
+  /** The press each physical pointer is currently driving. */
+  private activeByPointer = new Map<number, string>();
   private events: ControlEvent[] = [];
   private lastTapAt = -Infinity;
   private lastTapX = 0;
   private lastTapY = 0;
   private amount = 0.5;
+  /**
+   * Mice and pens reuse pointerId 1 for every press, so each press gets its
+   * own control-point id; otherwise two quick taps could look like one hold.
+   */
+  private pressCounter = 0;
   private element: HTMLElement | null = null;
 
   attach(element: HTMLElement): () => void {
@@ -47,6 +59,7 @@ export class TouchInput {
       element.removeEventListener("pointercancel", cancel);
       element.removeEventListener("lostpointercapture", cancel);
       this.pointers.clear();
+      this.activeByPointer.clear();
       this.element = null;
     };
   }
@@ -58,6 +71,21 @@ export class TouchInput {
 
   get points(): ControlPoint[] {
     return [...this.pointers.values()].map((p) => p.point);
+  }
+
+  /**
+   * Points for this frame. A press that was released before any frame saw it
+   * is delivered once, then dropped — otherwise very quick taps (shorter than
+   * a frame) would never reach instruments that act on presses.
+   */
+  collectPoints(): ControlPoint[] {
+    const points: ControlPoint[] = [];
+    for (const [id, state] of this.pointers) {
+      points.push(state.point);
+      state.observed = true;
+      if (state.releasing) this.pointers.delete(id);
+    }
+    return points;
   }
 
   /** Distance between the first two active pointers, or null. */
@@ -87,6 +115,7 @@ export class TouchInput {
 
   reset(): void {
     this.pointers.clear();
+    this.activeByPointer.clear();
     this.events = [];
   }
 
@@ -98,7 +127,7 @@ export class TouchInput {
 
   private onDown(e: PointerEvent): void {
     if (e.pointerType === "mouse" && e.button !== 0) return;
-    if (this.pointers.size >= 5) return;
+    if (this.activeByPointer.size >= 5) return;
     try {
       this.element?.setPointerCapture(e.pointerId);
     } catch {
@@ -107,18 +136,23 @@ export class TouchInput {
     const { x, y } = this.normalise(e);
     const now = e.timeStamp || performance.now();
     const amount = e.pointerType === "pen" && e.pressure > 0 ? clamp01(e.pressure) : this.amount;
-    this.pointers.set(e.pointerId, {
-      point: { id: `touch-${e.pointerId}`, source: "touch", position: { x, y }, velocity: { x: 0, y: 0 }, speed: 0, amount, engaged: true, lifted: false },
+    const id = `touch-${e.pointerId}-${this.pressCounter++}`;
+    this.activeByPointer.set(e.pointerId, id);
+    this.pointers.set(id, {
+      point: { id, source: "touch", position: { x, y }, velocity: { x: 0, y: 0 }, speed: 0, amount, engaged: true, lifted: false },
       downAt: now,
       downX: x,
       downY: y,
       lastTime: now,
       maxTravel: 0,
+      observed: false,
+      releasing: false,
     });
   }
 
   private onMove(e: PointerEvent): void {
-    const state = this.pointers.get(e.pointerId);
+    const id = this.activeByPointer.get(e.pointerId);
+    const state = id ? this.pointers.get(id) : undefined;
     if (!state) return;
     const { x, y } = this.normalise(e);
     const now = e.timeStamp || performance.now();
@@ -135,9 +169,14 @@ export class TouchInput {
   }
 
   private onUp(e: PointerEvent, cancelled: boolean): void {
-    const state = this.pointers.get(e.pointerId);
-    if (!state) return;
-    this.pointers.delete(e.pointerId);
+    // lostpointercapture follows every pointerup; once released, the pointer has no active press.
+    const id = this.activeByPointer.get(e.pointerId);
+    const state = id ? this.pointers.get(id) : undefined;
+    if (!id || !state) return;
+    this.activeByPointer.delete(e.pointerId);
+    // A press no frame has seen yet is delivered once more (quick taps), otherwise it ends now.
+    if (!cancelled && !state.observed) state.releasing = true;
+    else this.pointers.delete(id);
     if (cancelled) return;
     const now = e.timeStamp || performance.now();
     if (now - state.downAt > TAP_MAX_MS || state.maxTravel > TAP_MAX_TRAVEL) return;

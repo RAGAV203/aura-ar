@@ -10,7 +10,7 @@ describe("creation validation", () => {
   });
 
   it("rejects missing fields and unknown instruments", () => {
-    const result = validateCreation({ ...sampleCreation(), instrumentId: "theremin", id: "x" });
+    const result = validateCreation({ ...sampleCreation(), instrumentId: "kazoo", id: "x" });
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.errors).toEqual(expect.arrayContaining(["invalid id", "unknown instrument"]));
     expect(validateCreation(null).ok).toBe(false);
