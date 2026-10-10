@@ -23,10 +23,11 @@ export type InstrumentId =
   | "handpan"
   | "marimba"
   | "tabla"
-  | "kalimba";
+  | "kalimba"
+  | "pitch-grid";
 
 /** Groups instruments in the library and switcher. */
-export type InstrumentCategory = "visual" | "strings" | "keys-winds" | "percussion" | "electronic";
+export type InstrumentCategory = "surface" | "visual" | "strings" | "keys-winds" | "percussion" | "electronic";
 
 export type QualityLevel = "high" | "balanced" | "battery";
 
@@ -82,6 +83,8 @@ export interface ParameterSpec {
   defaultValue: number;
   /** Short description used as the accessible description of the slider. */
   description: string;
+  /** Controlled from the instrument's own panel; hidden from the generic Controls sheet. */
+  panel?: boolean;
 }
 
 export type InstrumentParameters = Record<string, number>;
@@ -120,7 +123,8 @@ export type SoundPalette =
   | "handpan-air"
   | "marimba-hall"
   | "tabla-tanpura"
-  | "kalimba-air";
+  | "kalimba-air"
+  | "grid-stage";
 
 export interface AudioConfig {
   /** Continuous layer. */
@@ -152,6 +156,8 @@ export interface InstrumentDefinition {
   /** Accent colours used by UI chrome around the instrument. */
   palette: [string, string, string];
   category: InstrumentCategory;
+  /** Instruments with their own on-screen control panel (rendered by the studio). */
+  surface?: "pitch-grid";
 }
 
 /** Values the instrument engine pushes to the audio engine (~30 Hz). */
@@ -249,5 +255,7 @@ export interface InstrumentEngine {
   undo?(): boolean;
   readonly supportsEraser?: boolean;
   setEraser?(enabled: boolean, size?: number): void;
+  /** Normalised space taken by on-screen chrome (top panel, bottom dock) so playing areas avoid it. */
+  setInsets?(insets: { top: number; bottom: number }): void;
   dispose(): void;
 }

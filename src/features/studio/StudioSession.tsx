@@ -29,6 +29,7 @@ import { CameraPanel } from "./components/CameraPanel";
 import { ControlsSheet } from "./components/ControlsSheet";
 import { Diagnostics } from "./components/Diagnostics";
 import { ExportSheet } from "./components/ExportSheet";
+import { GridPanel } from "./components/GridPanel";
 import { HandOverlay } from "./components/HandOverlay";
 import { HelpSheet } from "./components/HelpSheet";
 import { InstrumentSwitcher } from "./components/InstrumentSwitcher";
@@ -88,6 +89,8 @@ export function StudioSession({ initial, debug }: { initial: StudioInitial; debu
   const [chromeHidden, setChromeHidden] = useState(false);
   const [includeCamera, setIncludeCamera] = useState(false);
   const [cameraCount, setCameraCount] = useState(0);
+  const [gridCollapsed, setGridCollapsed] = useState(false);
+  const [insets, setInsets] = useState<{ top: number; bottom: number }>({ top: 0.1, bottom: 0.12 });
   const webglOk = useWebGLSupport();
 
   const definition = getInstrument(instrumentId);
@@ -97,6 +100,8 @@ export function StudioSession({ initial, debug }: { initial: StudioInitial; debu
   const dirty = useRef(false);
   const draftDirty = useRef(false);
   const videoElement = useRef<HTMLVideoElement | null>(null);
+  const surfacePanel = useRef<HTMLDivElement | null>(null);
+  const dockElement = useRef<HTMLElement | null>(null);
   const latestFrame = useRef<{ frame: TrackingFrame; receivedAt: number } | null>(null);
   const stageAspect = useRef(1);
   const pendingRestore = useRef<{ state: Record<string, unknown>; snapshot: Blob | null } | null>({ state: initial.state, snapshot: initial.snapshot });
@@ -276,6 +281,30 @@ export function StudioSession({ initial, debug }: { initial: StudioInitial; debu
       video?.removeEventListener("resize", update);
     };
   }, [hub, backdropVisible, vision.phase, vision]);
+
+  // Surface instruments (Pitch Grid) lay out their playing area between the control panel and the dock.
+  const hasSurface = !!definition.surface;
+  useEffect(() => {
+    const stage = stageElement.current;
+    if (!stage || !hasSurface) return;
+    const measure = () => {
+      const area = stage.getBoundingClientRect();
+      if (area.height <= 0) return;
+      const panel = chromeHidden ? null : surfacePanel.current?.getBoundingClientRect();
+      const dock = chromeHidden ? null : dockElement.current?.getBoundingClientRect();
+      const top = panel ? (panel.bottom - area.top) / area.height : 0.02;
+      const bottom = dock ? (area.bottom - dock.top) / area.height : 0.02;
+      setInsets((current) => (Math.abs(current.top - top) < 0.002 && Math.abs(current.bottom - bottom) < 0.002 ? current : { top, bottom }));
+    };
+    const frame = requestAnimationFrame(measure);
+    const observer = new ResizeObserver(measure);
+    observer.observe(stage);
+    if (surfacePanel.current) observer.observe(surfacePanel.current);
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, [hasSurface, chromeHidden, gridCollapsed, instrumentId]);
 
   useEffect(() => {
     if (vision.phase !== "running") return;
@@ -572,6 +601,7 @@ export function StudioSession({ initial, debug }: { initial: StudioInitial; debu
             audio
             intensity={settings.visualIntensity}
             transparent={backdropVisible}
+            insets={hasSurface ? insets : undefined}
             label={`${definition.name} artwork`}
             getInput={(dt, now) => applySymmetry(hub.collect(dt, now), symmetry, stageAspect.current)}
             onEngineReady={onEngineReady}
@@ -635,7 +665,7 @@ export function StudioSession({ initial, debug }: { initial: StudioInitial; debu
       </header>
 
       {audio.state === "locked" && !paused && !chromeHidden && (
-        <button type="button" className={styles.soundPrompt} onClick={toggleSound}>
+        <button type="button" className={`${styles.soundPrompt} ${hasSurface ? styles.soundPromptLow : ""}`} onClick={toggleSound}>
           Tap for sound
         </button>
       )}
@@ -666,7 +696,30 @@ export function StudioSession({ initial, debug }: { initial: StudioInitial; debu
         </button>
       )}
 
-      <nav className={styles.dock} aria-label="Studio tools" hidden={chromeHidden}>
+      {hasSurface && !chromeHidden && (
+        <GridPanel
+          ref={surfacePanel}
+          definition={definition}
+          parameters={parameters}
+          presetId={presetId}
+          collapsed={gridCollapsed}
+          onToggleCollapsed={() => setGridCollapsed((c) => !c)}
+          onParameterChange={(key, value) => {
+            setParameters((p) => ({ ...p, [key]: value }));
+            setPresetId(null);
+            markDirty();
+          }}
+          onPreset={(id) => {
+            const preset = definition.presets.find((p) => p.id === id);
+            if (!preset) return;
+            setParameters({ ...defaultParameters(definition), ...preset.parameters });
+            setPresetId(id);
+            announce(`Preset ${preset.name}`);
+          }}
+        />
+      )}
+
+      <nav ref={dockElement} className={styles.dock} aria-label="Studio tools" hidden={chromeHidden}>
         <IconButton icon="instruments" label="Instruments" showLabel onClick={() => setSheet("instruments")} />
         <IconButton icon="sliders" label="Controls" showLabel onClick={() => setSheet("controls")} />
         <IconButton icon="sparkle" label="Tools" showLabel pressed={symmetry !== 1 || eraser} onClick={() => setSheet("tools")} />

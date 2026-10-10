@@ -10,6 +10,7 @@ import { HandpanInstrument } from "./engines/handpan";
 import { SitarInstrument, VeenaInstrument } from "./engines/indianStrings";
 import { KalimbaInstrument } from "./engines/kalimba";
 import { MarimbaInstrument } from "./engines/marimba";
+import { PitchGridInstrument } from "./engines/pitchGrid";
 import { TablaInstrument } from "./engines/tabla";
 import { ThereminInstrument } from "./engines/theremin";
 import { FreestyleDrumsInstrument } from "./engines/freestyleDrums";
@@ -68,6 +69,8 @@ export function createCanvasEngine(id: Exclude<InstrumentId, "cosmic-garden">, c
       return new TablaInstrument(canvas, parameters, seed);
     case "kalimba":
       return new KalimbaInstrument(canvas, parameters, seed);
+    case "pitch-grid":
+      return new PitchGridInstrument(canvas, parameters, seed);
   }
 }
 

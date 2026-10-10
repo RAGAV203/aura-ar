@@ -2,10 +2,11 @@
 
 **Move your hands. Shape your world.**
 
-Aura is a mobile-first creative web app: 23 instruments that turn hand gestures (via the camera) or touch into sound and generative visuals. When the camera is on, the live view fills the screen and the instruments are drawn over it, aligned with your hands. Everything — camera processing, audio synthesis, storage — runs on the device. It installs as a PWA and works offline once cached.
+Aura is a mobile-first creative web app: 24 instruments that turn hand gestures (via the camera) or touch into sound and generative visuals. When the camera is on, the live view fills the screen and the instruments are drawn over it, aligned with your hands. Everything — camera processing, audio synthesis, storage — runs on the device. It installs as a PWA and works offline once cached.
 
 | Category | Instruments |
 | --- | --- |
+| **Performance surfaces** | **Pitch Grid** — an isomorphic note grid in the style of GeoShred (rows in fourths, roots highlighted, diatonic or chromatic), with a hardware-style control panel: octave, auto-tune, expression XY pad, whammy / vibrato / filter faders, 2nd harmonic, pinch harmonic on release, piano / guitar / slide transitions, backing track, track and amp volume, 10 sounds and a preset browser |
 | **Strings** | **Guitar** (acoustic, nylon, electric, ukulele — chord pads, strumming, palm mute) · **Veena** (Carnatic ragas, meend, slides, tanpura) · **Sitar** (Hindustani ragas, jawari buzz, sympathetic strings) · **Violin & Cello** (bow speed = volume) · **String Harp** |
 | **Percussion** | **Drum Kit** (realistic kit, simulated sticks in both hands) · **Freestyle Drums** (air drumming with sticks + looper) · **Tabla** (bols, Dha/Dhin, bayan glide) · **Marimba** (mallets) · **Handpan** |
 | **Keys, winds & ensemble** | **Piano** · **Flute** · **Trumpet** · **Orchestra** (conduct strings, winds, brass, timpani) · **Kalimba** |

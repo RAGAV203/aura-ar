@@ -47,6 +47,8 @@ export interface InstrumentStageProps {
   interactive?: boolean;
   /** Let whatever is behind the stage (the camera backdrop) show through. */
   transparent?: boolean;
+  /** Normalised space covered by chrome above / below the playing area. */
+  insets?: { top: number; bottom: number };
   className?: string;
   label: string;
   ref?: Ref<StageHandle>;
@@ -101,6 +103,7 @@ export function InstrumentStage(props: InstrumentStageProps) {
       const rect = container.getBoundingClientRect();
       engine.resize(rect.width, rect.height, Math.min(window.devicePixelRatio || 1, PIXEL_RATIO_CAP[live.current.quality]));
     }
+    if (live.current.insets) engine.setInsets?.(live.current.insets);
     live.current.onEngineReady?.(engine);
     if (live.current.audio) getAudioEngine().setInstrument(definition.audio);
     return () => {
@@ -120,6 +123,13 @@ export function InstrumentStage(props: InstrumentStageProps) {
   useEffect(() => {
     engineRef.current?.setReducedMotion(reducedMotion);
   }, [reducedMotion]);
+
+  const insetTop = props.insets?.top;
+  const insetBottom = props.insets?.bottom;
+  useEffect(() => {
+    if (insetTop === undefined || insetBottom === undefined) return;
+    engineRef.current?.setInsets?.({ top: insetTop, bottom: insetBottom });
+  }, [insetTop, insetBottom, instrumentId, seed]);
 
   // Quality affects the backing-store resolution, so resize too.
   useEffect(() => {

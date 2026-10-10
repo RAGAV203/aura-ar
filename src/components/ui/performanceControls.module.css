@@ -1,0 +1,162 @@
+/* Hardware-controller styling: brushed metal, cyan latching buttons, green expression glow. */
+
+.vslider {
+  display: flex;
+  height: 100%;
+}
+
+.vtrack {
+  position: relative;
+  width: 34px;
+  height: 100%;
+  min-height: 96px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #121318, #1c1e24);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  touch-action: none;
+  cursor: ns-resize;
+}
+
+.vfill {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
+  max-height: calc(100% - 8px);
+  border-radius: 6px;
+  background: linear-gradient(180deg, #4cd964, #1f8f36);
+  box-shadow: 0 0 10px rgba(76, 217, 100, 0.5);
+}
+
+.vlabel {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(-90deg);
+  white-space: nowrap;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(246, 244, 255, 0.85);
+  pointer-events: none;
+}
+
+.knobWrap {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+}
+
+.knob {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f2f3f6, #9a9ca6 45%, #3c3e46 75%);
+  box-shadow:
+    0 3px 8px rgba(0, 0, 0, 0.6),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4);
+  touch-action: none;
+  cursor: ns-resize;
+}
+
+.knobPointer {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 3px;
+  height: 18px;
+  margin-left: -1.5px;
+  margin-top: -18px;
+  border-radius: 2px;
+  background: #1a1b20;
+  transform-origin: 50% 100%;
+}
+
+.knobLabel {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: rgba(246, 244, 255, 0.85);
+  white-space: nowrap;
+}
+
+.xyWrap {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 6px 8px;
+  border-radius: 12px;
+  background: #121318;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.xyTitle {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.xyBody {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.xyAxisY {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 0.65rem;
+  color: rgba(246, 244, 255, 0.75);
+}
+
+.xyAxisX {
+  font-size: 0.65rem;
+  color: rgba(246, 244, 255, 0.75);
+}
+
+.xy {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background:
+    repeating-radial-gradient(circle, transparent 0 11px, rgba(0, 0, 0, 0.35) 11px 12px),
+    radial-gradient(circle, #6bff6b 0%, #2bbd2b 45%, #0f4d12 75%, #0a1a0b 100%);
+  box-shadow: 0 0 18px rgba(76, 217, 100, 0.35);
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.xyTarget {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  box-shadow:
+    0 0 0 3px rgba(0, 0, 0, 0.35),
+    inset 0 0 0 4px rgba(255, 255, 255, 0.9);
+  pointer-events: none;
+}
+
+.toggle {
+  min-height: 44px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, #4a4c54, #33353c);
+  color: #f6f4ff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.15;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.toggleOn {
+  background: linear-gradient(180deg, #3fd6ff, #18a9e0);
+  color: #062030;
+  box-shadow:
+    0 0 14px rgba(63, 214, 255, 0.55),
+    0 2px 4px rgba(0, 0, 0, 0.5);
+}

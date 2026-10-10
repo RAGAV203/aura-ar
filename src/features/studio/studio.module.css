@@ -149,6 +149,14 @@
 }
 
 /* ---------- Dock ---------- */
+/* Surface instruments keep the top for their control panel; prompt above the dock instead. */
+.soundPromptLow {
+  top: auto;
+  right: 50%;
+  bottom: calc(var(--safe-bottom) + 84px);
+  transform: translateX(50%);
+}
+
 .dock {
   position: absolute;
   left: 50%;
@@ -540,13 +548,17 @@
 .selfViewToggle,
 .topBar,
 .dock,
-.soundPrompt,
-.pausedBanner,
-.recordingBanner,
 .diagnostics,
 .showChrome,
 .undoChip {
   z-index: 3;
+}
+
+/* Transient banners float above surface control panels (Pitch Grid). */
+.soundPrompt,
+.pausedBanner,
+.recordingBanner {
+  z-index: 4;
 }
 
 .handOverlay {

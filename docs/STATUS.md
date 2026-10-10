@@ -6,9 +6,9 @@
 | --- | --- |
 | `npm run lint` (ESLint 9 + Next + React Compiler rules) | Pass, 0 warnings |
 | `npm run typecheck` (strict, `noUncheckedIndexedAccess`) | Pass |
-| `npm test` — 103 unit/component tests | Pass |
-| `npm run build` — static export, 87-file / 2.91 MB precache | Pass |
-| `npm run test:e2e` — 25 Playwright tests (desktop + Pixel 7 emulation), incl. hydration checks, camera backdrop, tools and all 23 instruments (switching, touch response, sound-on playback without errors) | Pass |
+| `npm test` — 110 unit/component tests | Pass |
+| `npm run build` — static export, 89-file / 2.99 MB precache | Pass |
+| `npm run test:e2e` — 26 Playwright tests (desktop + Pixel 7 emulation), incl. hydration checks, camera backdrop, tools and all 24 instruments (switching, the Pitch Grid control panel, touch response, sound-on playback without errors) | Pass |
 | `npm audit --omit=dev` | 0 vulnerabilities |
 
 E2E coverage: first visit without camera, touch-only session, camera denied / busy recovery, switching all five instruments, unsaved-work guard, save → reopen with snapshot restore, project export → import, corrupted import rejection, PNG export, failed model download recovery, pause, offline launch after caching, service-worker update with consent and draft preservation, and the **real** MediaPipe pipeline (fake camera → model download → worker inference → camera released).
@@ -20,7 +20,7 @@ E2E coverage: first visit without camera, touch-only session, camera denied / bu
 | Production build succeeds | ✅ |
 | Type checking and linting pass | ✅ |
 | Critical automated tests pass | ✅ |
-| All 23 instruments functional | ✅ (touch verified e2e; gesture paths unit-tested and the inference pipeline verified with a fake camera) |
+| All 24 instruments functional | ✅ (touch verified e2e; gesture paths unit-tested and the inference pipeline verified with a fake camera) |
 | Touch-only operation works | ✅ |
 | Camera permission requested at the correct time | ✅ (e2e asserts zero requests until the user chooses camera) |
 | Camera and audio resources cleaned up | ✅ camera verified e2e; audio layer swapped/stopped on instrument change and studio exit (code-reviewed, not instrumented in tests) |
@@ -48,6 +48,8 @@ E2E coverage: first visit without camera, touch-only session, camera denied / bu
 6. **Recovery drafts** don't capture Aurora/Particle Bloom visuals (they aren't accumulated artwork); only parameters/seed are restored for those, by design.
 7. **Dev-tool advisories:** `npm audit` (including dev dependencies) reports advisories in Vitest 3 and `eslint-config-next`'s glob dependency. Fixes require Vitest 5 / Node 22. They don't ship to users.
 8. **CSP** needs `'unsafe-inline'` scripts because of the static export's inline hydration data.
+
+9. **Pitch Grid panel on phones** scrolls sideways (with a fade hint) and can be collapsed to a one-line bar; it has not been tried on a real phone. The backing track is a fixed I–V–vi–IV pattern, and slide mode's 'Auto' eases to the nearest grid note rather than the nearest scale note in chromatic mode.
 
 ## Suggested next steps
 

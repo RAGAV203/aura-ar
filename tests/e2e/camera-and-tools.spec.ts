@@ -100,7 +100,7 @@ test("hide interface keeps only the artwork until restored", async ({ page }) =>
 test("new instruments react to touch", async ({ page }) => {
   await skipOnboarding(page);
   const pixels = () => page.evaluate(() => (document.querySelector("main canvas") as HTMLCanvasElement).toDataURL());
-  for (const id of ["string-harp", "ripple-pond", "magnetic-field", "piano", "flute", "trumpet", "orchestra", "drum-kit", "freestyle-drums", "guitar", "veena", "sitar", "violin", "theremin", "handpan", "marimba", "tabla", "kalimba"]) {
+  for (const id of ["string-harp", "ripple-pond", "magnetic-field", "piano", "flute", "trumpet", "orchestra", "drum-kit", "freestyle-drums", "guitar", "veena", "sitar", "violin", "theremin", "handpan", "marimba", "tabla", "kalimba", "pitch-grid"]) {
     await page.goto(`/studio/?instrument=${id}`);
     await expect(page.locator("main canvas")).toBeVisible();
     await page.getByRole("button", { name: "Pause", exact: true }).click();
@@ -123,7 +123,7 @@ test("melodic instruments and drums play with sound on, without errors", async (
     if (message.type() === "error") errors.push(`${current}: ${message.text()}`);
   });
   await skipOnboarding(page);
-  for (const id of ["piano", "flute", "trumpet", "orchestra", "drum-kit", "freestyle-drums", "guitar", "veena", "sitar", "violin", "theremin", "handpan", "marimba", "tabla", "kalimba"]) {
+  for (const id of ["piano", "flute", "trumpet", "orchestra", "drum-kit", "freestyle-drums", "guitar", "veena", "sitar", "violin", "theremin", "handpan", "marimba", "tabla", "kalimba", "pitch-grid"]) {
     current = id;
     await page.goto(`/studio/?instrument=${id}`);
     const discard = page.getByRole("button", { name: "Discard" });
@@ -140,4 +140,32 @@ test("melodic instruments and drums play with sound on, without errors", async (
     await drawStroke(page, [0.5, 0.3], [0.5, 0.7], 10);
   }
   expect(errors).toEqual([]);
+});
+
+test("pitch grid control panel drives the instrument", async ({ page }) => {
+  await skipOnboarding(page);
+  await page.goto("/studio/?instrument=pitch-grid");
+  const panel = page.getByRole("region", { name: "Pitch Grid controls" });
+  await expect(panel).toBeVisible();
+
+  const octave = panel.locator("section[aria-label='Octave'] output");
+  const before = Number(await octave.textContent());
+  await panel.getByRole("button", { name: "Octave up" }).click();
+  await expect(octave).toHaveText(String(Math.min(4, before + 1)));
+
+  const harmonic = panel.getByRole("button", { name: "2nd Harmonic" });
+  const wasPressed = (await harmonic.getAttribute("aria-pressed")) === "true";
+  await harmonic.click();
+  await expect(harmonic).toHaveAttribute("aria-pressed", String(!wasPressed));
+
+  await panel.getByRole("radio", { name: "Slide" }).click();
+  await expect(panel.getByRole("radio", { name: "Slide" })).toHaveAttribute("aria-checked", "true");
+
+  await panel.getByRole("button", { name: "Next preset" }).click();
+  await expect(panel.locator("section[aria-label='Presets'] output")).toHaveText(/^\d+\/\d+$/);
+
+  await panel.getByRole("button", { name: "Hide controls" }).click();
+  await expect(page.getByRole("region", { name: "Pitch Grid controls (collapsed)" })).toBeVisible();
+  await page.getByRole("button", { name: "Show controls" }).first().click();
+  await expect(page.getByRole("region", { name: "Pitch Grid controls" })).toBeVisible();
 });

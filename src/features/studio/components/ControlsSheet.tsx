@@ -48,7 +48,7 @@ export function ControlsSheet(props: ControlsSheetProps) {
         <h3 id="shape-heading" className={styles.sheetHeading}>
           Shape
         </h3>
-        {definition.parameters.map((spec) => (
+        {definition.parameters.filter((spec) => !spec.panel).map((spec) => (
           <Slider
             key={spec.key}
             label={spec.label}

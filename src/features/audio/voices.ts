@@ -97,6 +97,7 @@ export function createContinuousLayer(context: BaseAudioContext, output: AudioNo
     case "handpan-air":
     case "marimba-hall":
     case "kalimba-air":
+    case "grid-stage":
     case "drum-room":
     case "drum-loop":
       addOsc("sine", root - 24, 0, 0.08);
