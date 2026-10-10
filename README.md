@@ -50,7 +50,7 @@ The camera needs a secure context: `localhost` works; for a phone on your LAN us
 | `npm test` | Vitest unit + component tests |
 | `npm run test:e2e` | Playwright against the production build (run `npm run build` first) |
 | `npm run check` | lint + typecheck + unit tests + build |
-| `npm run icons` | Regenerates the PNG app icons procedurally |
+| `npm run icons` | Regenerates the logo, app icons and favicon from `scripts/generate-icons.mjs` (uses Playwright Chromium) |
 
 ### End-to-end tests
 

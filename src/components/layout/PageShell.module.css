@@ -62,11 +62,7 @@
 }
 
 .wordmarkGlyph {
-  width: 0.8em;
-  height: 0.8em;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 35% 35%, #fff 0 8%, transparent 9%),
-    conic-gradient(from 200deg, var(--accent-secondary), var(--accent-primary), var(--accent-tertiary), var(--accent-secondary));
-  box-shadow: 0 0 18px rgba(155, 124, 255, 0.6);
+  width: auto;
+  height: 1.05em;
+  margin-top: -0.12em;
 }

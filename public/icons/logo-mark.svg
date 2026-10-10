@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="96 56 320 360">
+  <defs>
+    <linearGradient id="aura-mark-legs" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#55E7FF"/>
+      <stop offset="0.5" stop-color="#9B7CFF"/>
+      <stop offset="1" stop-color="#FF79CF"/>
+    </linearGradient>
+    <linearGradient id="aura-mark-ribbon" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#55E7FF" stop-opacity="0"/>
+      <stop offset="0.2" stop-color="#55E7FF"/>
+      <stop offset="0.5" stop-color="#F6F4FF"/>
+      <stop offset="0.8" stop-color="#FF79CF"/>
+      <stop offset="1" stop-color="#FF79CF" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="aura-mark-spark">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="0.25" stop-color="#FFFFFF" stop-opacity="0.85"/>
+      <stop offset="0.6" stop-color="#B39CFF" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#B39CFF" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="aura-mark-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="12"/>
+    </filter>
+  </defs>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <g filter="url(#aura-mark-glow)" opacity="0.75">
+      <path d="M150 394 C176 298 206 190 256 120 C306 190 336 298 362 394" stroke="url(#aura-mark-legs)" stroke-width="34"/>
+      <path d="M112 300 C168 258 212 334 256 298 C300 262 344 338 400 296" stroke="url(#aura-mark-ribbon)" stroke-width="20"/>
+    </g>
+    <path d="M150 394 C176 298 206 190 256 120 C306 190 336 298 362 394" stroke="url(#aura-mark-legs)" stroke-width="28"/>
+    <path d="M112 300 C168 258 212 334 256 298 C300 262 344 338 400 296" stroke="url(#aura-mark-ribbon)" stroke-width="13"/>
+  </g>
+  <circle cx="256" cy="116" r="64" fill="url(#aura-mark-spark)"/>
+  <path d="M256 70 L262 110 L302 116 L262 122 L256 162 L250 122 L210 116 L250 110 Z" fill="#FFFFFF" opacity="0.95"/>
+</svg>

@@ -1,102 +1,136 @@
-// Generates Aura's PNG app icons procedurally (no image dependencies):
-// a luminous orb with a conic violet→cyan→magenta glow on midnight navy.
-// Run with: node scripts/generate-icons.mjs
-import { writeFileSync, mkdirSync } from "node:fs";
+// Aura logo — single source of truth for every icon.
+//
+// The mark is an "A" drawn as an aurora arch: two luminous strokes rise to a
+// glowing fingertip spark at the apex, crossed by a flowing aurora ribbon —
+// gestures drawing light.
+//
+// Writes:
+//   public/icons/logo-mark.svg        mark only, transparent (in-app wordmark)
+//   public/icons/icon.svg             rounded tile (browser / manifest SVG icon)
+//   public/icons/icon-192.png, icon-512.png       rounded tile
+//   public/icons/icon-maskable-512.png            full-bleed, mark inside the safe zone
+//   public/icons/apple-touch-icon.png (180)       full-bleed (iOS rounds it)
+//   public/favicon.ico                            32 px PNG-in-ICO
+//
+// PNGs are rasterised with Playwright's Chromium (a dev dependency already used
+// for end-to-end tests). Run: npm run icons   (needs `npx playwright install chromium` once)
+import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { deflateSync } from "node:zlib";
+import { chromium } from "@playwright/test";
 
-const out = join(dirname(fileURLToPath(import.meta.url)), "..", "public", "icons");
-mkdirSync(out, { recursive: true });
+const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+const iconsDir = join(root, "public", "icons");
+mkdirSync(iconsDir, { recursive: true });
 
-const CRC_TABLE = new Uint32Array(256).map((_, n) => {
-  let c = n;
-  for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
-  return c >>> 0;
-});
-const crc32 = (buf) => {
-  let c = 0xffffffff;
-  for (const b of buf) c = CRC_TABLE[(c ^ b) & 0xff] ^ (c >>> 8);
-  return (c ^ 0xffffffff) >>> 0;
-};
-const chunk = (type, data) => {
-  const len = Buffer.alloc(4);
-  len.writeUInt32BE(data.length);
-  const body = Buffer.concat([Buffer.from(type), data]);
-  const crc = Buffer.alloc(4);
-  crc.writeUInt32BE(crc32(body));
-  return Buffer.concat([len, body, crc]);
-};
+const BACKGROUND = "#080914";
 
-const mix = (a, b, t) => a + (b - a) * t;
-const STOPS = [
-  [0x55, 0xe7, 0xff],
-  [0x9b, 0x7c, 0xff],
-  [0xff, 0x79, 0xcf],
-  [0x55, 0xe7, 0xff],
-];
-
-function color(angle) {
-  const t = ((angle / (Math.PI * 2)) % 1 + 1) % 1;
-  const seg = t * (STOPS.length - 1);
-  const i = Math.floor(seg);
-  const f = seg - i;
-  const a = STOPS[i];
-  const b = STOPS[i + 1];
-  return [mix(a[0], b[0], f), mix(a[1], b[1], f), mix(a[2], b[2], f)];
+/** The mark in a 512×512 coordinate space. `id` keeps gradient ids unique per document. */
+function mark(id) {
+  return `
+  <defs>
+    <linearGradient id="${id}-legs" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#55E7FF"/>
+      <stop offset="0.5" stop-color="#9B7CFF"/>
+      <stop offset="1" stop-color="#FF79CF"/>
+    </linearGradient>
+    <linearGradient id="${id}-ribbon" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#55E7FF" stop-opacity="0"/>
+      <stop offset="0.2" stop-color="#55E7FF"/>
+      <stop offset="0.5" stop-color="#F6F4FF"/>
+      <stop offset="0.8" stop-color="#FF79CF"/>
+      <stop offset="1" stop-color="#FF79CF" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="${id}-spark">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="0.25" stop-color="#FFFFFF" stop-opacity="0.85"/>
+      <stop offset="0.6" stop-color="#B39CFF" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#B39CFF" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="${id}-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="12"/>
+    </filter>
+  </defs>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <g filter="url(#${id}-glow)" opacity="0.75">
+      <path d="M150 394 C176 298 206 190 256 120 C306 190 336 298 362 394" stroke="url(#${id}-legs)" stroke-width="34"/>
+      <path d="M112 300 C168 258 212 334 256 298 C300 262 344 338 400 296" stroke="url(#${id}-ribbon)" stroke-width="20"/>
+    </g>
+    <path d="M150 394 C176 298 206 190 256 120 C306 190 336 298 362 394" stroke="url(#${id}-legs)" stroke-width="28"/>
+    <path d="M112 300 C168 258 212 334 256 298 C300 262 344 338 400 296" stroke="url(#${id}-ribbon)" stroke-width="13"/>
+  </g>
+  <circle cx="256" cy="116" r="64" fill="url(#${id}-spark)"/>
+  <path d="M256 70 L262 110 L302 116 L262 122 L256 162 L250 122 L210 116 L250 110 Z" fill="#FFFFFF" opacity="0.95"/>`;
 }
 
-function render(size, { maskable }) {
-  const raw = Buffer.alloc(size * (size * 4 + 1));
-  const cx = size / 2;
-  const cy = size / 2;
-  const orb = size * (maskable ? 0.24 : 0.3);
-  for (let y = 0; y < size; y++) {
-    raw[y * (size * 4 + 1)] = 0;
-    for (let x = 0; x < size; x++) {
-      const dx = x + 0.5 - cx;
-      const dy = y + 0.5 - cy;
-      const d = Math.hypot(dx, dy);
-      let r = 8, g = 9, b = 20;
-      // Soft outer halo.
-      const halo = Math.exp(-((d / (orb * 1.9)) ** 2)) * 0.55;
-      const [hr, hg, hb] = color(Math.atan2(dy, dx) + 1.2);
-      r = mix(r, hr, halo);
-      g = mix(g, hg, halo);
-      b = mix(b, hb, halo);
-      // Orb body with a conic gradient and a white highlight.
-      if (d < orb) {
-        const edge = Math.min(1, (orb - d) / (size * 0.01));
-        const [cr, cg, cb] = color(Math.atan2(dy, dx) + 3.5);
-        const hx = x - (cx - orb * 0.3);
-        const hy = y - (cy - orb * 0.3);
-        const spec = Math.exp(-((Math.hypot(hx, hy) / (orb * 0.22)) ** 2));
-        r = mix(r, mix(cr, 255, spec), edge);
-        g = mix(g, mix(cg, 255, spec), edge);
-        b = mix(b, mix(cb, 255, spec), edge);
-      }
-      const o = y * (size * 4 + 1) + 1 + x * 4;
-      raw[o] = Math.round(Math.min(255, r));
-      raw[o + 1] = Math.round(Math.min(255, g));
-      raw[o + 2] = Math.round(Math.min(255, b));
-      raw[o + 3] = 255;
-    }
+function backdrop(id, rounded) {
+  return `
+  <defs>
+    <radialGradient id="${id}-bg" cx="0.5" cy="0.58" r="0.62">
+      <stop offset="0" stop-color="#2A1F5C"/>
+      <stop offset="0.55" stop-color="#120F2A"/>
+      <stop offset="1" stop-color="${BACKGROUND}"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" ${rounded ? 'rx="112"' : ""} fill="url(#${id}-bg)"/>`;
+}
+
+/** Tile with background; `scale` shrinks the mark around the centre (maskable safe zone). */
+function tile({ rounded, scale = 1, id = "aura" }) {
+  const offset = (512 * (1 - scale)) / 2;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">${backdrop(id, rounded)}
+  <g transform="translate(${offset} ${offset + 12 * scale}) scale(${scale})">${mark(id)}
+  </g>
+</svg>
+`;
+}
+
+const markOnly = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="96 56 320 360">${mark("aura-mark")}
+</svg>
+`;
+
+writeFileSync(join(iconsDir, "logo-mark.svg"), markOnly);
+writeFileSync(join(iconsDir, "icon.svg"), tile({ rounded: true }));
+console.log("[icons] logo-mark.svg, icon.svg");
+
+const rasters = [
+  { file: "icon-192.png", size: 192, svg: tile({ rounded: true }) },
+  { file: "icon-512.png", size: 512, svg: tile({ rounded: true }) },
+  // Maskable: content must fit the central 80% circle, background must be full-bleed.
+  { file: "icon-maskable-512.png", size: 512, svg: tile({ rounded: false, scale: 0.72 }) },
+  { file: "apple-touch-icon.png", size: 180, svg: tile({ rounded: false, scale: 0.86 }) },
+];
+
+const browser = await chromium.launch();
+try {
+  const page = await browser.newPage({ deviceScaleFactor: 1 });
+  const render = async (svg, size) => {
+    await page.setViewportSize({ width: size, height: size });
+    await page.setContent(
+      `<!doctype html><html><body style="margin:0;background:transparent">${svg.replace("<svg ", `<svg width="${size}" height="${size}" `)}</body></html>`,
+    );
+    return page.screenshot({ omitBackground: true, clip: { x: 0, y: 0, width: size, height: size } });
+  };
+  for (const { file, size, svg } of rasters) {
+    writeFileSync(join(iconsDir, file), await render(svg, size));
+    console.log(`[icons] ${file}`);
   }
-  const header = Buffer.alloc(13);
-  header.writeUInt32BE(size, 0);
-  header.writeUInt32BE(size, 4);
-  header[8] = 8; // bit depth
-  header[9] = 6; // RGBA
-  return Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), chunk("IHDR", header), chunk("IDAT", deflateSync(raw, { level: 9 })), chunk("IEND", Buffer.alloc(0))]);
-}
-
-const targets = [
-  ["icon-192.png", 192, false],
-  ["icon-512.png", 512, false],
-  ["icon-maskable-512.png", 512, true],
-  ["apple-touch-icon.png", 180, false],
-];
-for (const [name, size, maskable] of targets) {
-  writeFileSync(join(out, name), render(size, { maskable }));
-  console.log(`[icons] ${name}`);
+  // favicon.ico: a single 32×32 PNG wrapped in an ICO container.
+  const png = await render(tile({ rounded: true }), 32);
+  const header = Buffer.alloc(22);
+  header.writeUInt16LE(0, 0); // reserved
+  header.writeUInt16LE(1, 2); // type: icon
+  header.writeUInt16LE(1, 4); // image count
+  header.writeUInt8(32, 6); // width
+  header.writeUInt8(32, 7); // height
+  header.writeUInt8(0, 8); // palette
+  header.writeUInt8(0, 9); // reserved
+  header.writeUInt16LE(1, 10); // colour planes
+  header.writeUInt16LE(32, 12); // bits per pixel
+  header.writeUInt32LE(png.length, 14); // image size
+  header.writeUInt32LE(22, 18); // image offset
+  writeFileSync(join(root, "public", "favicon.ico"), Buffer.concat([header, png]));
+  console.log("[icons] favicon.ico");
+} finally {
+  await browser.close();
 }

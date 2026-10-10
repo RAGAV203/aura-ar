@@ -1,21 +1,45 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
-      <stop offset="0" stop-color="#9B7CFF" stop-opacity="0.55"/>
-      <stop offset="1" stop-color="#9B7CFF" stop-opacity="0"/>
+    <radialGradient id="aura-bg" cx="0.5" cy="0.58" r="0.62">
+      <stop offset="0" stop-color="#2A1F5C"/>
+      <stop offset="0.55" stop-color="#120F2A"/>
+      <stop offset="1" stop-color="#080914"/>
     </radialGradient>
-    <linearGradient id="orb" x1="0" y1="0" x2="1" y2="1">
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#aura-bg)"/>
+  <g transform="translate(0 12) scale(1)">
+  <defs>
+    <linearGradient id="aura-legs" x1="0" y1="1" x2="1" y2="0">
       <stop offset="0" stop-color="#55E7FF"/>
       <stop offset="0.5" stop-color="#9B7CFF"/>
       <stop offset="1" stop-color="#FF79CF"/>
     </linearGradient>
-    <radialGradient id="spec" cx="38%" cy="36%" r="20%">
-      <stop offset="0" stop-color="#fff" stop-opacity="0.9"/>
-      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    <linearGradient id="aura-ribbon" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#55E7FF" stop-opacity="0"/>
+      <stop offset="0.2" stop-color="#55E7FF"/>
+      <stop offset="0.5" stop-color="#F6F4FF"/>
+      <stop offset="0.8" stop-color="#FF79CF"/>
+      <stop offset="1" stop-color="#FF79CF" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="aura-spark">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="0.25" stop-color="#FFFFFF" stop-opacity="0.85"/>
+      <stop offset="0.6" stop-color="#B39CFF" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#B39CFF" stop-opacity="0"/>
     </radialGradient>
+    <filter id="aura-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="12"/>
+    </filter>
   </defs>
-  <rect width="512" height="512" rx="112" fill="#080914"/>
-  <circle cx="256" cy="256" r="230" fill="url(#halo)"/>
-  <circle cx="256" cy="256" r="150" fill="url(#orb)"/>
-  <circle cx="256" cy="256" r="150" fill="url(#spec)"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <g filter="url(#aura-glow)" opacity="0.75">
+      <path d="M150 394 C176 298 206 190 256 120 C306 190 336 298 362 394" stroke="url(#aura-legs)" stroke-width="34"/>
+      <path d="M112 300 C168 258 212 334 256 298 C300 262 344 338 400 296" stroke="url(#aura-ribbon)" stroke-width="20"/>
+    </g>
+    <path d="M150 394 C176 298 206 190 256 120 C306 190 336 298 362 394" stroke="url(#aura-legs)" stroke-width="28"/>
+    <path d="M112 300 C168 258 212 334 256 298 C300 262 344 338 400 296" stroke="url(#aura-ribbon)" stroke-width="13"/>
+  </g>
+  <circle cx="256" cy="116" r="64" fill="url(#aura-spark)"/>
+  <path d="M256 70 L262 110 L302 116 L262 122 L256 162 L250 122 L210 116 L250 110 Z" fill="#FFFFFF" opacity="0.95"/>
+  </g>
 </svg>

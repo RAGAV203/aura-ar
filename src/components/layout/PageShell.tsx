@@ -14,7 +14,8 @@ interface PageShellProps {
 export function Wordmark({ size = "md" }: { size?: "md" | "lg" }) {
   return (
     <Link href="/" className={`${styles.wordmark} ${size === "lg" ? styles.wordmarkLarge : ""}`} aria-label="Aura home">
-      <span className={styles.wordmarkGlyph} aria-hidden="true" />
+      {/* eslint-disable-next-line @next/next/no-img-element -- static SVG logo, no optimisation needed */}
+      <img src="/icons/logo-mark.svg" alt="" className={styles.wordmarkGlyph} width={32} height={36} />
       <span className="display">Aura</span>
     </Link>
   );
