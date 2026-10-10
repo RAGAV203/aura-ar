@@ -1,0 +1,72 @@
+.shell {
+  min-height: 100dvh;
+  background:
+    radial-gradient(1200px 600px at 85% -10%, rgba(155, 124, 255, 0.12), transparent 60%),
+    radial-gradient(900px 500px at -10% 30%, rgba(85, 231, 255, 0.06), transparent 60%),
+    var(--background);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(var(--safe-top) + var(--space-4)) calc(var(--safe-right) + var(--space-4)) var(--space-2) calc(var(--safe-left) + var(--space-4));
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-2) calc(var(--safe-right) + var(--space-4)) calc(var(--safe-bottom) + 112px) calc(var(--safe-left) + var(--space-4));
+  outline: none;
+}
+
+@media (min-width: 900px) {
+  .main {
+    padding-bottom: var(--space-7);
+  }
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin: var(--space-3) 0 var(--space-5);
+}
+
+.title {
+  font-size: var(--text-2xl);
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  text-decoration: none;
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.wordmarkLarge {
+  font-size: 2.5rem;
+}
+
+.wordmarkGlyph {
+  width: 0.8em;
+  height: 0.8em;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 35%, #fff 0 8%, transparent 9%),
+    conic-gradient(from 200deg, var(--accent-secondary), var(--accent-primary), var(--accent-tertiary), var(--accent-secondary));
+  box-shadow: 0 0 18px rgba(155, 124, 255, 0.6);
+}

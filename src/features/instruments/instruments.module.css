@@ -1,0 +1,139 @@
+.preview {
+  position: relative;
+  overflow: hidden;
+  background: var(--background-deep);
+}
+
+.previewFallback {
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: var(--space-4);
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  transition:
+    border-color var(--duration-med),
+    transform var(--duration-med) var(--ease-out);
+}
+
+.card:hover,
+.card:focus-within {
+  border-color: color-mix(in srgb, var(--card-accent) 50%, transparent);
+}
+
+.card:focus-within {
+  box-shadow: var(--focus-ring);
+}
+
+.cardPreview {
+  aspect-ratio: 16 / 10;
+  width: 100%;
+}
+
+.cardCompact .cardPreview {
+  aspect-ratio: 4 / 3;
+}
+
+.cardBody {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+}
+
+.cardTitle {
+  font-size: var(--text-lg);
+}
+
+/* The whole card is clickable through the title link's stretched hit area. */
+.cardLink {
+  text-decoration: none;
+}
+
+.cardLink::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.cardLink:focus-visible {
+  box-shadow: none;
+}
+
+.cardTagline {
+  color: var(--card-accent);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.cardDescription {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: var(--space-1) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.downloadNote {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.downloadNote svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.scroller {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: min(72vw, 280px);
+  gap: var(--space-3);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: var(--space-2);
+  margin: 0 calc(-1 * var(--space-4));
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+  scrollbar-width: none;
+}
+
+.scroller > * {
+  scroll-snap-align: start;
+}

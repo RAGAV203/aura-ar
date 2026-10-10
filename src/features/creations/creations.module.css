@@ -1,0 +1,155 @@
+.muted {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-4);
+}
+
+.notice {
+  margin-bottom: var(--space-4);
+}
+
+.layoutToggle {
+  display: flex;
+  padding: 2px;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+}
+
+.list .item {
+  grid-template-columns: 88px 1fr;
+  align-items: center;
+}
+
+.list .itemActions {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 720px) {
+  .list .item {
+    grid-template-columns: 96px 1fr auto;
+  }
+
+  .list .itemActions {
+    grid-column: auto;
+  }
+}
+
+.thumbLink {
+  display: block;
+  border-radius: var(--radius-md);
+}
+
+.thumb {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+}
+
+.info {
+  display: grid;
+  gap: 2px;
+  padding: 0 var(--space-2);
+  min-width: 0;
+}
+
+.name {
+  font-size: var(--text-md);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.meta {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.itemActions {
+  display: flex;
+  justify-content: space-between;
+  gap: 2px;
+}
+
+.empty {
+  display: grid;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+}
+
+@media (min-width: 720px) {
+  .empty {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.emptyArt {
+  min-height: 240px;
+}
+
+.emptyText {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+  align-content: center;
+  padding: var(--space-5);
+}
+
+.emptyText p {
+  color: var(--text-secondary);
+}
+
+.renameForm {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.label {
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+
+.input {
+  min-height: 48px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}

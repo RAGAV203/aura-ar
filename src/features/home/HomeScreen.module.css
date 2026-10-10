@@ -1,0 +1,162 @@
+.hero {
+  position: relative;
+  min-height: min(68dvh, 620px);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  isolation: isolate;
+  border: 1px solid var(--border-subtle);
+}
+
+.heroArt {
+  position: absolute !important;
+  inset: 0;
+  z-index: -1;
+}
+
+.heroArt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(8, 9, 20, 0) 30%, rgba(8, 9, 20, 0.85) 100%);
+  pointer-events: none;
+}
+
+.heroContent {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  max-width: 640px;
+}
+
+.heroTitle {
+  font-size: var(--text-display);
+  line-height: 1.02;
+}
+
+.heroTitle em {
+  font-style: italic;
+  background: linear-gradient(90deg, var(--accent-secondary), var(--accent-primary-strong), var(--accent-tertiary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.heroLead {
+  color: var(--text-secondary);
+  max-width: 46ch;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.offlineBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--success);
+}
+
+.section {
+  margin-top: var(--space-7);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.sectionHeader h2 {
+  font-size: var(--text-xl);
+}
+
+.seeAll {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  color: var(--accent-secondary);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  text-decoration: none;
+}
+
+.invitation {
+  display: grid;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+}
+
+@media (min-width: 720px) {
+  .invitation {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.invitationArt {
+  min-height: 220px;
+}
+
+.invitationText {
+  display: grid;
+  gap: var(--space-3);
+  align-content: center;
+  justify-items: start;
+  padding: var(--space-5);
+}
+
+.invitationText p {
+  color: var(--text-secondary);
+}
+
+.recentGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 160px), 1fr));
+  gap: var(--space-3);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.recentCard {
+  display: grid;
+  gap: 4px;
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  padding-bottom: var(--space-2);
+}
+
+.recentThumb {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+}
+
+.recentName {
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+
+.recentMeta,
+.muted {
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+}
+
+.muted {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
